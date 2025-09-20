@@ -1,0 +1,403 @@
+.service-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.04);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.service-image {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  border-radius: 20px 20px 0 0;
+}
+
+.service-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.service-card:hover .service-image img {
+  transform: scale(1.08);
+}
+
+.photo-count {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.service-content {
+  padding: 1.5rem;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.service-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.service-title {
+  color: #1f2937;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.service-category {
+  background: #f3f4f6;
+  color: #6b7280;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: 1px solid #e5e7eb;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.service-description {
+  color: #6b7280;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.service-provider {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.provider-name {
+  color: #4b5563;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.service-schedule {
+  margin: 0.5rem 0;
+}
+
+.schedule-info {
+  color: #059669;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: rgba(5, 150, 105, 0.1);
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  border: 1px solid rgba(5, 150, 105, 0.2);
+  display: inline-block;
+  max-width: 100%;
+  word-wrap: break-word;
+  line-height: 1.3;
+}
+
+.provider-location {
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+.service-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.service-details {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.service-price {
+  color: #059669;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.service-duration {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  padding: 0.2rem 0.6rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+/* Compact card styles */
+.service-card.compact {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  min-height: auto;
+  height: auto;
+  background: #ffffff;
+}
+
+.service-image-compact {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.service-image-compact img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.service-content-compact {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.service-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.service-title-compact {
+  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.service-price-compact {
+  color: #059669;
+  font-size: 1rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.service-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.provider-name-compact {
+  color: #4b5563;
+  font-size: 0.85rem;
+  flex: 1;
+}
+
+.service-category-compact {
+  background: #f3f4f6;
+  color: #6b7280;
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  border: 1px solid #e5e7eb;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.view-details-btn {
+  background: #059669;
+  color: #ffffff;
+  border: 1px solid #059669;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.view-details-btn:hover {
+  background: #047857;
+  border: 1px solid #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+/* No image state */
+.service-card:not(:has(.service-image)) {
+  min-height: 200px;
+}
+
+.service-card:not(:has(.service-image)) .service-content {
+  padding: 2rem 1.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .service-card {
+    border-radius: 12px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+  
+  .service-image {
+    height: 180px;
+    border-radius: 12px 12px 0 0;
+  }
+  
+  .service-content {
+    padding: 1.25rem;
+  }
+  
+  .service-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .service-title {
+    font-size: 1.05rem;
+  }
+  
+  .service-category {
+    align-self: flex-start;
+    padding: 0.4rem 1rem;
+    font-size: 0.65rem;
+  }
+  
+  .service-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .service-price {
+    font-size: 1.2rem;
+  }
+
+  .schedule-info {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .view-details-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.8rem;
+    width: 100%;
+    text-align: center;
+  }
+
+  .photo-count {
+    top: 12px;
+    right: 12px;
+    padding: 8px 14px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .service-card {
+    border-radius: 10px;
+  }
+  
+  .service-image {
+    height: 160px;
+    border-radius: 10px 10px 0 0;
+  }
+  
+  .service-content {
+    padding: 1rem;
+  }
+  
+  .service-title {
+    font-size: 1rem;
+  }
+  
+  .service-category {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.6rem;
+  }
+  
+  .service-price {
+    font-size: 1.1rem;
+  }
+  
+  .view-details-btn {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .service-content {
+    padding: 0.875rem;
+  }
+  
+  .service-title {
+    font-size: 0.95rem;
+  }
+  
+  .service-description {
+    font-size: 0.8rem;
+  }
+  
+  .provider-name {
+    font-size: 0.75rem;
+  }
+  
+  .service-price {
+    font-size: 1rem;
+  }
+}

@@ -1,0 +1,175 @@
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../service/authService';
+import type { User, Provider } from '../types/auth';
+import './Header.css';
+
+const Header: React.FC = () => {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | Provider | null>(null);
+  const [userType, setUserType] = useState<string | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      const authenticated = authService.isAuthenticated();
+      const user = authService.getStoredUser();
+      const type = authService.getStoredUserType();
+
+      setIsAuthenticated(authenticated);
+      setCurrentUser(user);
+      setUserType(type);
+    };
+
+    checkAuthStatus();
+
+    // Listen for storage changes to update auth state
+    const handleStorageChange = () => {
+      checkAuthStatus();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    // Custom event for same-tab auth changes
+    window.addEventListener('authChange', handleStorageChange);
+
+    // Click outside to close dropdown
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.user-dropdown')) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authChange', handleStorageChange);
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    authService.logout();
+    setIsAuthenticated(false);
+    setCurrentUser(null);
+    setUserType(null);
+    // Dispatch custom event for same-tab updates
+    window.dispatchEvent(new Event('authChange'));
+    navigate('/');
+  };
+
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
+  const getUserDisplayName = () => {
+    if (!currentUser) return '';
+
+    if (userType === 'provider') {
+      const provider = currentUser as Provider;
+      return provider.business_name || provider.full_name;
+    } else {
+      const user = currentUser as User;
+      return user.full_name;
+    }
+  };
+
+  return (
+    <header className="header">
+      <div className="header-container">
+        <Link to="/" className="header-logo">
+          Service Connect
+        </Link>
+
+        <nav className="header-nav">
+          {isAuthenticated && currentUser ? (
+            <div className="user-dropdown">
+              <button
+                className="user-dropdown-trigger"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                <span className="user-greeting">
+                  Welcome, {getUserDisplayName()}
+                </span>
+                <svg
+                  className={`dropdown-arrow ${dropdownOpen ? 'open' : ''}`}
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                </svg>
+              </button>
+
+              {dropdownOpen && (
+                <div className="dropdown-menu">
+                  <Link
+                    to="/"
+                    className="dropdown-item"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293l6-6zm5-.793V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"/>
+                      <path d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z"/>
+                    </svg>
+                    Home
+                  </Link>
+                  <Link
+                    to="/user-booking"
+                    className="dropdown-item"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
+                      <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                    </svg>
+                    My Bookings
+                  </Link>
+                  <Link
+                    to="/user-profile"
+                    className="dropdown-item"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                    </svg>
+                    My Profile
+                  </Link>
+                  <div className="dropdown-divider"></div>
+                  <button
+                    onClick={handleLogout}
+                    className="dropdown-item logout-item"
+                  >
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <path fillRule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+                      <path fillRule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                    </svg>
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="auth-buttons">
+              <button
+                onClick={handleLogin}
+                className="header-btn login-btn"
+              >
+                Login
+              </button>
+              <Link to="/register" className="header-btn register-btn">
+                Register
+              </Link>
+            </div>
+          )}
+        </nav>
+      </div>
+    </header>
+  );
+};
+
+export default Header;

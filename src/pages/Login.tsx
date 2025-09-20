@@ -1,0 +1,112 @@
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../service/authService';
+import './Login.css';
+
+const Login: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [loginType, setLoginType] = useState<'user' | 'provider'>('user');
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !password) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const credentials = { email, password };
+      let response;
+      
+      if (loginType === 'user') {
+        response = await authService.loginUser(credentials);
+      } else {
+        response = await authService.loginProvider(credentials);
+      }
+      
+      authService.storeAuthData(response);
+      // Dispatch custom event for auth state change
+      window.dispatchEvent(new Event('authChange'));
+
+      if (loginType === 'provider') {
+        navigate('/provider-homepage');
+      } else {
+        navigate('/home');
+      }
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="login-container">
+      <h1 className="brand-title">Service Connect</h1>
+      <div className="login-card">
+        <div className="login-tabs">
+          <button 
+            type="button"
+            className={`tab ${loginType === 'user' ? 'active' : ''}`}
+            onClick={() => setLoginType('user')}
+          >
+            User Login
+          </button>
+          <button 
+            type="button"
+            className={`tab ${loginType === 'provider' ? 'active' : ''}`}
+            onClick={() => setLoginType('provider')}
+          >
+            Provider Login
+          </button>
+        </div>
+        
+        <h2>Welcome Back</h2>
+        <p className="login-subtitle">
+          Login as {loginType === 'user' ? 'a customer' : 'a service provider'}
+        </p>
+        
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="email">Email:</label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="Enter your email"
+            />
+          </div>
+          <div>
+            <label htmlFor="password">Password:</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="Enter your password"
+            />
+          </div>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? 'Logging in...' : `Login as ${loginType === 'user' ? 'Customer' : 'Provider'}`}
+          </button>
+        </form>
+        
+        <div className="register-link">
+          <p>Don't have an account?</p>
+          <Link to="/register">Sign up here</Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
