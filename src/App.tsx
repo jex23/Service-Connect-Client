@@ -3,6 +3,16 @@ import { useEffect, useState, Suspense } from 'react'
 import Header from './components/Header'
 import Home from './pages/Home'
 import Login from './pages/Login'
+import AdminLogin from './pages/AdminLogin'
+import AdminHome from './pages/AdminHome'
+import AdminUsers from './pages/AdminUsers'
+import AdminUserManagement from './pages/AdminUserManagement'
+import AdminProviderManagement from './pages/AdminProviderManagement'
+import AdminServiceManagement from './pages/AdminServiceManagement'
+import AdminServiceDetails from './pages/AdminServiceDetails'
+import AdminBookingManagement from './pages/AdminBookingManagement'
+import AdminCustomerReportManagement from './pages/AdminCustomerReportManagement'
+import AdminSaleManagement from './pages/AdminSaleManagement'
 import Register from './pages/Register'
 import ServiceDetails from './pages/ServiceDetails'
 import ProviderDetails from './pages/ProviderDetails'
@@ -11,6 +21,8 @@ import ProviderHomepage from './pages/ProviderHomepage'
 import ProviderServices from './pages/ProviderServices'
 import ProviderServiceFullDetails from './pages/ProviderServiceFullDetails'
 import ProviderBookings from './pages/ProviderBookings'
+import UserChat from './pages/UserChat'
+import ProviderChat from './pages/ProviderChat'
 import { authService } from './service/authService'
 import './App.css'
 
@@ -26,6 +38,7 @@ function AppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userType, setUserType] = useState<string | null>(null);
   const isProviderRoute = location.pathname.startsWith('/provider-');
+  const isAdminRoute = location.pathname.startsWith('/admin-');
 
   useEffect(() => {
     const checkAuthStatus = () => {
@@ -98,12 +111,22 @@ function AppContent() {
 
   return (
     <div className="App">
-      {!isProviderRoute && <Header />}
+      {!isProviderRoute && !isAdminRoute && <Header />}
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin-home" element={<AdminHome />} />
+          <Route path="/admin-users" element={<AdminUsers />} />
+          <Route path="/admin-user-management" element={<AdminUserManagement />} />
+          <Route path="/admin-provider-management" element={<AdminProviderManagement />} />
+          <Route path="/admin-service-management" element={<AdminServiceManagement />} />
+          <Route path="/admin-service-details/:id" element={<AdminServiceDetails />} />
+          <Route path="/admin-booking-management" element={<AdminBookingManagement />} />
+          <Route path="/admin-customer-reports" element={<AdminCustomerReportManagement />} />
+          <Route path="/admin-sale-management" element={<AdminSaleManagement />} />
           <Route path="/register" element={<Register />} />
           <Route path="/service/:serviceId" element={<ServiceDetails />} />
           <Route path="/provider/:providerId" element={<ProviderDetails />} />
@@ -112,9 +135,11 @@ function AppContent() {
           <Route path="/provider-services" element={<ProviderServices />} />
           <Route path="/provider-services/:serviceId" element={<ProviderServiceFullDetails />} />
           <Route path="/provider-bookings" element={<ProviderBookings />} />
+          <Route path="/provider-chat" element={<ProviderChat />} />
           <Route path="/provider-profile" element={<ProviderProfile />} />
           <Route path="/user-booking" element={<UserBooking />} />
           <Route path="/user-profile" element={<UserProfile />} />
+          <Route path="/user-chat" element={<UserChat />} />
         </Routes>
       </Suspense>
     </div>

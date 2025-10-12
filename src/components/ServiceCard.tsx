@@ -1,69 +1,19 @@
 import React from 'react';
-import type { PublicService, Provider } from '../types/publicServices';
+import type { PublicService } from '../types/publicServices';
 import './ServiceCard.css';
 
 interface ServiceCardProps {
-  service?: PublicService;
-  provider?: Provider;
-  onClick?: (item: PublicService | Provider) => void;
+  service: PublicService;
+  onClick?: (service: PublicService) => void;
   compact?: boolean;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ service, provider, onClick, compact = false }) => {
+const ServiceCard: React.FC<ServiceCardProps> = ({ service, onClick, compact = false }) => {
   const handleClick = () => {
     if (onClick) {
-      onClick(service || provider!);
+      onClick(service);
     }
   };
-
-  // If rendering a provider card
-  if (provider) {
-    return (
-      <div className="service-card provider-card" onClick={handleClick}>
-        {provider.image_logo && (
-          <div className="service-image">
-            <img 
-              src={provider.image_logo} 
-              alt={provider.business_name}
-              onError={(e) => {
-                e.currentTarget.src = '/placeholder-service.jpg';
-              }}
-            />
-          </div>
-        )}
-        
-        <div className="service-content">
-          <div className="service-header">
-            <h3 className="service-title">{provider.business_name}</h3>
-            <span className="provider-name">{provider.full_name}</span>
-          </div>
-          
-          {provider.about && (
-            <p className="service-description">
-              {provider.about.length > 100 
-                ? `${provider.about.substring(0, 100)}...` 
-                : provider.about
-              }
-            </p>
-          )}
-          
-          <div className="service-provider">
-            <span className="provider-address">📍 {provider.address}</span>
-          </div>
-          
-          <div className="service-footer">
-            <span className="provider-status">
-              {provider.is_active ? '🟢 Active' : '🔴 Inactive'}
-            </span>
-            <button className="view-details-btn">View Services</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Original service card logic
-  if (!service) return null;
 
   const formatPrice = (price?: number) => {
     if (!price) return 'Price on request';

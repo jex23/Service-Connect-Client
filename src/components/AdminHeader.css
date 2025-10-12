@@ -1,0 +1,80 @@
+/* Admin Page Header Component - Highly Scoped to Prevent Conflicts */
+
+/* Only target header elements with admin-header class inside admin-main-content */
+.admin-main-content > header.admin-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1.25rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Header Left Side */
+.admin-main-content > header.admin-header > .admin-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.admin-main-content > header.admin-header > .admin-header-left > h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* Header Right Side */
+.admin-main-content > header.admin-header > .admin-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* User Info Section */
+.admin-main-content > header.admin-header .admin-user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-main-content > header.admin-header .admin-user-info > .admin-name {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 0.9375rem;
+}
+
+.admin-main-content > header.admin-header .admin-user-info > .admin-role-badge {
+  padding: 0.25rem 0.625rem;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-main-content > header.admin-header {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+  }
+
+  .admin-main-content > header.admin-header > .admin-header-left,
+  .admin-main-content > header.admin-header > .admin-header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-main-content > header.admin-header > .admin-header-left > h1 {
+    font-size: 1.5rem;
+  }
+}

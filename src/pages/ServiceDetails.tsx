@@ -59,7 +59,6 @@ const ServiceDetails: React.FC = () => {
   // Calendar state
   const [calendarData, setCalendarData] = useState<BookingCalendarResponse>([]);
   const [calendarLoading, setCalendarLoading] = useState(false);
-  const [showCalendarView, setShowCalendarView] = useState(false);
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(null);
   const [scheduleData, setScheduleData] = useState<BookingScheduleCheckResponse | null>(null);
   const [scheduleLoading, setScheduleLoading] = useState(false);
@@ -185,19 +184,29 @@ const ServiceDetails: React.FC = () => {
     setScheduleData(null);
   };
 
+  // Check if a date matches the provider's schedule
+  const isDateAvailable = (date: Date): boolean => {
+    if (!service || !service.has_schedule || service.schedules.length === 0) {
+      return false;
+    }
+
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+    return service.schedules.some(schedule => schedule.schedule_day === dayName);
+  };
+
   // Generate calendar grid for selected month
   const generateCalendarGrid = () => {
     const now = new Date();
     const year = currentCalendarMonth.getFullYear();
     const month = currentCalendarMonth.getMonth();
-    
+
     const firstDay = new Date(year, month, 1);
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - firstDay.getDay()); // Start from Sunday
-    
+
     const calendar = [];
     const current = new Date(startDate);
-    
+
     for (let week = 0; week < 6; week++) {
       const weekDays = [];
       for (let day = 0; day < 7; day++) {
@@ -207,22 +216,24 @@ const ServiceDetails: React.FC = () => {
         const day_num = current.getDate().toString().padStart(2, '0');
         const dateStr = `${year}-${month_num}-${day_num}`;
         const dayBookings = calendarData.find(d => d.date === dateStr)?.bookings || [];
-        
+        const dateObj = new Date(current);
+
         weekDays.push({
           date: new Date(current),
           dateStr,
           isCurrentMonth: current.getMonth() === month,
           isToday: current.toDateString() === now.toDateString(),
-          bookings: dayBookings
+          bookings: dayBookings,
+          isAvailable: isDateAvailable(dateObj)
         });
-        
+
         current.setDate(current.getDate() + 1);
       }
       calendar.push(weekDays);
-      
+
       if (current.getMonth() !== month && week >= 4) break;
     }
-    
+
     return calendar;
   };
 
@@ -380,8 +391,19 @@ const ServiceDetails: React.FC = () => {
   if (loading) {
     return (
       <div className="service-details-container">
-        <div className="loading-state">
-          <p>Loading service details...</p>
+        {/* Full Page Loading Overlay */}
+        <div className="loading-overlay">
+          <div className="loading-content">
+            <div className="loading-spinner">
+              <div className="spinner-ring"></div>
+              <div className="spinner-ring"></div>
+              <div className="spinner-ring"></div>
+            </div>
+            <div className="loading-text">Loading Service Details</div>
+            <div className="loading-subtext">
+              Please wait<span className="loading-dots"></span>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -390,31 +412,30 @@ const ServiceDetails: React.FC = () => {
   if (!service) {
     return (
       <div className="service-details-container">
-        <div className="error-state">
-          <h2>Service Not Found</h2>
-          <p>The requested service could not be found.</p>
-          <button onClick={() => navigate('/')} className="back-btn">
-            Back to Home
-          </button>
-        </div>
+        <main className="service-main">
+          <div className="error-state">
+            <h2>Service Not Found</h2>
+            <p>The requested service could not be found.</p>
+            <button onClick={() => navigate('/')} className="back-btn-primary">
+              Back to Home
+            </button>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
     <div className="service-details-container">
-      <header className="service-details-header">
-        <button onClick={() => navigate('/')} className="back-btn">
-          ← Back to Services
+      <main className="service-main">
+        {/* Back Button */}
+        <button onClick={() => navigate(-1)} className="back-btn">
+          ← Back
         </button>
-        <div className="service-category-badge">
-          {service.category.category_name}
-        </div>
-      </header>
 
-      <div className="service-details-content">
-        {/* Left Column - Gallery and Schedule */}
-        <div className="left-column">
+        <div className="service-details-content">
+          {/* Left Column - Gallery and Schedule */}
+          <div className="left-column">
           {/* Photo Gallery */}
           {service.has_photos && (
             <section className="photo-gallery">
@@ -480,13 +501,16 @@ const ServiceDetails: React.FC = () => {
         </div>
 
         {/* Right Column - Service Info */}
-        <div className="service-info">
-          {/* Service Title and Price */}
+        <div className="right-column">
+          {/* Service Title and Metadata */}
           <section className="service-header-section">
+            <div className="service-category-badge">
+              {service.category.category_name}
+            </div>
             <h1 className="service-title">{service.service_title}</h1>
-            <div className="service-pricing">
-              <span className="price">{formatPrice(service.price_decimal)}</span>
-              <span className="duration">{formatDuration(service.duration_minutes)}</span>
+            <div className="service-meta-row">
+              <div className="service-price-badge">{formatPrice(service.price_decimal)}</div>
+              <div className="service-duration-badge">{formatDuration(service.duration_minutes)}</div>
             </div>
           </section>
 
@@ -502,15 +526,27 @@ const ServiceDetails: React.FC = () => {
           <section className="provider-section">
             <h3>About the Provider</h3>
             <div className="provider-info">
-              <h4>{getDisplayName()}</h4>
-              <p className="provider-address">{service.provider.address}</p>
-              {service.provider.about && (
-                <p className="provider-description">{service.provider.about}</p>
-              )}
+              <div className="provider-info-row">
+                <span className="provider-label">Name:</span>
+                <span className="provider-value">{getDisplayName()}</span>
+              </div>
+              <div className="provider-info-row">
+                <span className="provider-label">Address:</span>
+                <span className="provider-value">{service.provider.address}</span>
+              </div>
               {service.provider.email && (
-                <p className="provider-contact">
-                  Contact: <a href={`mailto:${service.provider.email}`}>{service.provider.email}</a>
-                </p>
+                <div className="provider-info-row">
+                  <span className="provider-label">Contact:</span>
+                  <a href={`mailto:${service.provider.email}`} className="provider-value provider-email-link">
+                    {service.provider.email}
+                  </a>
+                </div>
+              )}
+              {service.provider.about && (
+                <div className="provider-info-row provider-about-row">
+                  <span className="provider-label">About:</span>
+                  <p className="provider-value provider-about-text">{service.provider.about}</p>
+                </div>
               )}
             </div>
           </section>
@@ -534,26 +570,46 @@ const ServiceDetails: React.FC = () => {
 
           {/* Action Buttons */}
           <section className="action-section">
-            <button 
-              className="contact-btn"
-              onClick={() => {
-                if (service.provider.email) {
-                  window.location.href = `mailto:${service.provider.email}?subject=Inquiry about ${service.service_title}`;
-                }
-              }}
-            >
-              Contact Provider
-            </button>
-            <button 
-              className="book-btn" 
+            <button
+              className="book-btn-primary"
               onClick={handleBookService}
               disabled={!service.has_schedule || service.schedules.length === 0}
             >
               {service.has_schedule && service.schedules.length > 0 ? 'Book Service' : 'No Schedule Available'}
             </button>
+            <button
+              className="contact-btn-secondary"
+              onClick={() => {
+                // Check if user is authenticated
+                if (!authService.isAuthenticated()) {
+                  alert('Please log in to message providers');
+                  navigate('/login');
+                  return;
+                }
+
+                const userType = authService.getStoredUserType();
+
+                // Only users can message providers
+                if (userType !== 'user') {
+                  alert('Only users can message providers. Please log in with a user account.');
+                  return;
+                }
+
+                // Navigate to chat page with provider info
+                navigate('/user-chat', {
+                  state: {
+                    providerId: service.provider.id,
+                    providerName: service.provider.business_name || service.provider.full_name
+                  }
+                });
+              }}
+            >
+              Message Provider
+            </button>
           </section>
         </div>
-      </div>
+        </div>
+      </main>
 
       {/* Booking Modal */}
       {showBookingModal && (
@@ -630,19 +686,12 @@ const ServiceDetails: React.FC = () => {
                 {/* Booking Calendar */}
                 <div className="booking-calendar-section">
                   <div className="calendar-header">
-                    <h4>Bookings</h4>
-                    <button 
-                      type="button"
-                      className="calendar-view-toggle"
-                      onClick={() => setShowCalendarView(!showCalendarView)}
-                    >
-                      {showCalendarView ? 'List View' : 'Calendar View'}
-                    </button>
+                    <h4>Booking Calendar</h4>
                   </div>
-                  
+
                   {calendarLoading ? (
                     <p>Loading calendar...</p>
-                  ) : showCalendarView ? (
+                  ) : (
                     <div className="calendar-grid-view">
                       <div className="calendar-month-header">
                         <button className="month-nav-btn" onClick={goToPreviousMonth}>
@@ -668,15 +717,15 @@ const ServiceDetails: React.FC = () => {
                           {generateCalendarGrid().map((week, weekIndex) => (
                             <div key={weekIndex} className="calendar-week">
                               {week.map((day, dayIndex) => (
-                                <div 
-                                  key={dayIndex} 
+                                <div
+                                  key={dayIndex}
                                   className={`calendar-day-cell ${
                                     !day.isCurrentMonth ? 'other-month' : ''
                                   } ${day.isToday ? 'today' : ''} ${
                                     day.bookings.length > 0 ? 'has-bookings' : ''
                                   } ${selectedCalendarDate === day.dateStr ? 'selected' : ''} ${
                                     day.isCurrentMonth ? 'clickable' : ''
-                                  }`}
+                                  } ${day.isAvailable && day.isCurrentMonth ? 'available-day' : ''}`}
                                   onClick={() => handleCalendarDayClick(day.dateStr, day.isCurrentMonth)}
                                 >
                                   <div className="day-number">{day.date.getDate()}</div>
@@ -733,7 +782,6 @@ const ServiceDetails: React.FC = () => {
                                             const date = new Date(year, month - 1, day);
                                             const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
                                             setSelectedDay(dayName);
-                                            setShowCalendarView(false); // Switch back to booking form
                                           }
                                         }}
                                       >
@@ -775,27 +823,6 @@ const ServiceDetails: React.FC = () => {
                         </div>
                       )}
                     </div>
-                  ) : calendarData.length > 0 ? (
-                    <div className="booking-calendar">
-                      {calendarData.slice(0, 3).map((day) => (
-                        <div key={day.date} className="calendar-day">
-                          <h5>{new Date(day.date).toLocaleDateString()}</h5>
-                          <div className="day-bookings">
-                            {day.bookings.map((booking) => (
-                              <div key={booking.id} className="booking-item">
-                                <span className="booking-time">{booking.booking_time}</span>
-                                <span className="booking-day">{booking.booking_day}</span>
-                                <span className={`booking-status ${booking.status.toLowerCase()}`}>
-                                  {booking.status}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p>No recent bookings found.</p>
                   )}
                 </div>
 

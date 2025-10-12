@@ -4,6 +4,7 @@ import ProviderHeader from '../components/ProviderHeader';
 import ProviderSidebar from '../components/ProviderSidebar';
 import { providerService } from '../service/providerService';
 import type { ProviderService, ProviderRegisteredCategory, ProviderServiceScheduleItem } from '../types/providerService';
+import '../components/ProviderLayout.css';
 import './ProviderServices.css';
 
 const ProviderServices: React.FC = () => {
@@ -252,10 +253,19 @@ const ProviderServices: React.FC = () => {
         <ProviderSidebar />
         <div className="main-content">
           <ProviderHeader />
-          <div className="provider-services">
-            <div className="loading-state">
-              <div className="spinner"></div>
-              <p>Loading services...</p>
+
+          {/* Full Page Loading Overlay */}
+          <div className="loading-overlay">
+            <div className="loading-content">
+              <div className="loading-spinner">
+                <div className="spinner-ring"></div>
+                <div className="spinner-ring"></div>
+                <div className="spinner-ring"></div>
+              </div>
+              <div className="loading-text">Loading Services</div>
+              <div className="loading-subtext">
+                Please wait<span className="loading-dots"></span>
+              </div>
             </div>
           </div>
         </div>

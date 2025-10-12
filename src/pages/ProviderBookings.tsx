@@ -4,6 +4,7 @@ import ProviderSidebar from '../components/ProviderSidebar';
 import { providerBookingService } from '../service/providerBookingService';
 import { authService } from '../service/authService';
 import type { ProviderBooking, ProviderBookingFilters } from '../types/providerBooking';
+import '../components/ProviderLayout.css';
 import './ProviderBookings.css';
 
 const ProviderBookings: React.FC = () => {
@@ -142,10 +143,19 @@ const ProviderBookings: React.FC = () => {
         <ProviderSidebar />
         <div className="main-content">
           <ProviderHeader />
-          <div className="provider-bookings">
-            <div className="loading-state">
-              <div className="spinner"></div>
-              <p>Loading bookings...</p>
+
+          {/* Full Page Loading Overlay */}
+          <div className="loading-overlay">
+            <div className="loading-content">
+              <div className="loading-spinner">
+                <div className="spinner-ring"></div>
+                <div className="spinner-ring"></div>
+                <div className="spinner-ring"></div>
+              </div>
+              <div className="loading-text">Loading Bookings</div>
+              <div className="loading-subtext">
+                Please wait<span className="loading-dots"></span>
+              </div>
             </div>
           </div>
         </div>

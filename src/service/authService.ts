@@ -22,8 +22,20 @@ class AuthService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'User login failed' }));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+
+        // Handle specific error cases
+        if (response.status === 401) {
+          throw new Error(errorData.message || 'Invalid email or password. Please check your credentials.');
+        } else if (response.status === 404) {
+          throw new Error('User account not found. Please check your email or register as a new user.');
+        } else if (response.status === 403) {
+          throw new Error(errorData.message || 'Your account is not active. Please contact support.');
+        } else if (response.status === 400) {
+          throw new Error(errorData.message || 'Invalid login credentials. Please check your email and password.');
+        }
+
+        throw new Error(errorData.message || `Login failed with status: ${response.status}`);
       }
 
       const data = await response.json();
@@ -32,7 +44,7 @@ class AuthService {
       if (error instanceof Error) {
         throw error;
       }
-      throw new Error('An unexpected error occurred during user login');
+      throw new Error('Unable to connect to the server. Please check your internet connection.');
     }
   }
 
@@ -47,8 +59,20 @@ class AuthService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Provider login failed' }));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+
+        // Handle specific error cases
+        if (response.status === 401) {
+          throw new Error(errorData.message || 'Invalid email or password. Please check your provider credentials.');
+        } else if (response.status === 404) {
+          throw new Error('Provider account not found. Please check your email or register as a new provider.');
+        } else if (response.status === 403) {
+          throw new Error(errorData.message || 'Your provider account is not active or pending approval. Please contact support.');
+        } else if (response.status === 400) {
+          throw new Error(errorData.message || 'Invalid login credentials. Please check your email and password.');
+        }
+
+        throw new Error(errorData.message || `Provider login failed with status: ${response.status}`);
       }
 
       const data = await response.json();
@@ -57,7 +81,7 @@ class AuthService {
       if (error instanceof Error) {
         throw error;
       }
-      throw new Error('An unexpected error occurred during provider login');
+      throw new Error('Unable to connect to the server. Please check your internet connection.');
     }
   }
 

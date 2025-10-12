@@ -6,6 +6,7 @@ import { providerProfileService } from '../service/providerProfileService';
 import { providerService } from '../service/providerService';
 import { authService } from '../service/authService';
 import type { ProviderProfile, ProviderProfileUpdateRequest, ProviderProfileUpdateWithFilesRequest } from '../types/providerProfile';
+import '../components/ProviderLayout.css';
 import './ProviderProfile.css';
 
 const ProviderProfile: React.FC = () => {
@@ -183,10 +184,19 @@ const ProviderProfile: React.FC = () => {
         <ProviderSidebar />
         <div className="main-content">
           <ProviderHeader />
-          <div className="provider-profile">
-            <div className="loading-state">
-              <div className="spinner"></div>
-              <p>Loading profile...</p>
+
+          {/* Full Page Loading Overlay */}
+          <div className="loading-overlay">
+            <div className="loading-content">
+              <div className="loading-spinner">
+                <div className="spinner-ring"></div>
+                <div className="spinner-ring"></div>
+                <div className="spinner-ring"></div>
+              </div>
+              <div className="loading-text">Loading Profile</div>
+              <div className="loading-subtext">
+                Please wait<span className="loading-dots"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -239,8 +249,8 @@ const ProviderProfile: React.FC = () => {
         <ProviderHeader />
         <div className="provider-profile">
           <div className="profile-header">
-            <div className="profile-info">
-              <div className="profile-avatar">
+            <div className="profile-page-info">
+              <div className="profile-page-avatar">
                 {profile.image_logo ? (
                   <img src={profile.image_logo} alt="Business Logo" />
                 ) : (

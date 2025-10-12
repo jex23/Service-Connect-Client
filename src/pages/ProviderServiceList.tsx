@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { IoChatbubbleEllipsesSharp } from 'react-icons/io5';
 import { publicServicesService } from '../service/publicServicesService';
+import { authService } from '../service/authService';
 import type { Provider, PublicService, ServiceProvider } from '../types/publicServices';
 import './ProviderServiceList.css';
 
@@ -137,6 +139,35 @@ const ProviderServiceList: React.FC = () => {
     navigate('/');
   };
 
+  const handleMessageClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    // Check if user is authenticated
+    if (!authService.isAuthenticated()) {
+      alert('Please log in to message providers');
+      navigate('/login');
+      return;
+    }
+
+    const userType = authService.getStoredUserType();
+
+    // Only users can message providers
+    if (userType !== 'user') {
+      alert('Only users can message providers. Please log in with a user account.');
+      return;
+    }
+
+    // Navigate to chat page with provider info
+    if (provider) {
+      navigate('/user-chat', {
+        state: {
+          providerId: provider.id,
+          providerName: provider.business_name || provider.full_name
+        }
+      });
+    }
+  };
+
   console.log('=== RENDER DEBUG ===');
   console.log('Render state - Loading:', loading);
   console.log('Render state - Provider:', provider);
@@ -146,8 +177,19 @@ const ProviderServiceList: React.FC = () => {
     console.log('Rendering loading state');
     return (
       <div className="provider-service-list-container">
-        <div className="loading-state">
-          <p>Loading services...</p>
+        {/* Full Page Loading Overlay */}
+        <div className="loading-overlay">
+          <div className="loading-content">
+            <div className="loading-spinner">
+              <div className="spinner-ring"></div>
+              <div className="spinner-ring"></div>
+              <div className="spinner-ring"></div>
+            </div>
+            <div className="loading-text">Loading Services</div>
+            <div className="loading-subtext">
+              Please wait<span className="loading-dots"></span>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -157,13 +199,15 @@ const ProviderServiceList: React.FC = () => {
     console.log('Rendering error state - no provider');
     return (
       <div className="provider-service-list-container">
-        <div className="error-state">
-          <h2>Provider Not Found</h2>
-          <p>The requested provider could not be found.</p>
-          <button onClick={handleBackClick} className="back-btn">
-            Back to Home
-          </button>
-        </div>
+        <main className="provider-main">
+          <div className="empty-state">
+            <h2>Provider Not Found</h2>
+            <p>The requested provider could not be found.</p>
+            <button onClick={handleBackClick} className="back-btn-primary">
+              Back to Home
+            </button>
+          </div>
+        </main>
       </div>
     );
   }
@@ -175,54 +219,80 @@ const ProviderServiceList: React.FC = () => {
 
   return (
     <div className="provider-service-list-container">
-      <div className="content-wrapper">
-        <header className="provider-service-list-header">
+      <main className="provider-main">
+        {/* Back Button */}
         <button onClick={handleBackClick} className="back-btn">
-          ← Back to Home
+          ← Back
         </button>
-        {provider.image_logo && (
-          <div className="provider-logo">
-            <img
-              src={provider.image_logo}
-              alt={`${getDisplayName()} logo`}
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
+
+        {/* Provider Header Section */}
+        <section className="provider-hero">
+          <div className="provider-hero-content">
+            {provider.image_logo && (
+              <div className="provider-avatar">
+                <img
+                  src={provider.image_logo}
+                  alt={`${getDisplayName()} logo`}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+            <div className="provider-details">
+              <h1 className="provider-name">{getDisplayName()}</h1>
+              {provider.address && (
+                <div className="provider-info-item">
+                  <span className="provider-label">Address:</span>
+                  <span className="provider-value">{provider.address}</span>
+                </div>
+              )}
+              {provider.email && (
+                <div className="provider-info-item">
+                  <span className="provider-label">Email:</span>
+                  <a href={`mailto:${provider.email}`} className="provider-contact-link">
+                    {provider.email}
+                  </a>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={handleMessageClick}
+              className="provider-message-btn"
+            >
+              <IoChatbubbleEllipsesSharp size={18} />
+              Message Provider
+            </button>
           </div>
+        </section>
+
+        {/* About Section */}
+        {provider.about && (
+          <section className="provider-about-section">
+            <h2>About</h2>
+            <p>{provider.about}</p>
+          </section>
         )}
-        <div className="provider-info">
-          <h1>{getDisplayName()}</h1>
-          <p className="provider-address">{provider.address}</p>
-          {provider.email && (
-            <a href={`mailto:${provider.email}`} className="provider-email">
-              Email: {provider.email}
-            </a>
-          )}
-        </div>
-      </header>
 
-      {provider.about && (
-        <div className="provider-about">
-          <h2>About</h2>
-          <p>{provider.about}</p>
-        </div>
-      )}
+        {/* Services Section */}
+        <section className="services-section">
+          <div className="section-header">
+            <div className="section-header-left">
+              <h3>Available Services</h3>
+              <p>{services.length} {services.length === 1 ? 'service' : 'services'} available</p>
+            </div>
+          </div>
 
-      <div className="services-section">
-        <h2>Services ({services.length})</h2>
-        
-        {services.length > 0 ? (
-          <div className="services-list">
-            {services.map((service) => (
-              <div 
-                key={service.id} 
-                className="service-item"
-                onClick={() => handleServiceClick(service)}
-              >
-                <div className="service-header">
+          {services.length > 0 ? (
+            <div className="services-grid">
+              {services.map((service) => (
+                <div
+                  key={service.id}
+                  className="service-card"
+                  onClick={() => handleServiceClick(service)}
+                >
                   {service.has_photos && service.photos && service.photos.length > 0 && (
-                    <div className="service-photo">
+                    <div className="service-card-image">
                       <img
                         src={service.photos[0].photo_url}
                         alt={service.service_title}
@@ -232,37 +302,43 @@ const ProviderServiceList: React.FC = () => {
                       />
                     </div>
                   )}
-                  <div className="service-main-info">
-                    <h3 className="service-title">{service.service_title}</h3>
+
+                  <div className="service-card-content">
+                    <h3 className="service-card-title">{service.service_title}</h3>
+                    <span className="service-card-category">{service.category.category_name}</span>
+
                     {service.service_description && (
-                      <p className="service-description">{service.service_description}</p>
+                      <p className="service-card-description">
+                        {service.service_description.length > 120
+                          ? `${service.service_description.substring(0, 120)}...`
+                          : service.service_description
+                        }
+                      </p>
                     )}
+
+                    <div className="service-card-footer">
+                      <div className="service-card-meta">
+                        {service.duration_minutes && (
+                          <span className="service-duration">
+                            ⏱ {formatDuration(service.duration_minutes)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="service-card-price">
+                        {formatPrice(service.price_decimal)}
+                      </div>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="service-meta">
-                  <span className="service-price">{formatPrice(service.price_decimal)}</span>
-                  {service.duration_minutes && (
-                    <span className="service-duration">{formatDuration(service.duration_minutes)}</span>
-                  )}
-                  <span className="service-category">{service.category.category_name}</span>
-                </div>
-
-                <div className="service-footer">
-                  <button className="service-view-btn">
-                    View Details
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="no-services">
-            <p>This provider currently has no active services.</p>
-          </div>
-        )}
-      </div>
-      </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <p>This provider currently has no active services.</p>
+            </div>
+          )}
+        </section>
+      </main>
     </div>
   );
 };

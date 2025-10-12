@@ -8,13 +8,16 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loginType, setLoginType] = useState<'user' | 'provider'>('user');
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [showErrorModal, setShowErrorModal] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
-      alert('Please fill in all fields');
+      setErrorMessage('Please fill in all fields');
+      setShowErrorModal(true);
       return;
     }
 
@@ -23,13 +26,13 @@ const Login: React.FC = () => {
     try {
       const credentials = { email, password };
       let response;
-      
+
       if (loginType === 'user') {
         response = await authService.loginUser(credentials);
       } else {
         response = await authService.loginProvider(credentials);
       }
-      
+
       authService.storeAuthData(response);
       // Dispatch custom event for auth state change
       window.dispatchEvent(new Event('authChange'));
@@ -40,10 +43,16 @@ const Login: React.FC = () => {
         navigate('/home');
       }
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Login failed. Please try again.');
+      setErrorMessage(error instanceof Error ? error.message : 'Login failed. Please try again.');
+      setShowErrorModal(true);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const closeErrorModal = () => {
+    setShowErrorModal(false);
+    setErrorMessage('');
   };
 
   return (
@@ -104,7 +113,34 @@ const Login: React.FC = () => {
           <p>Don't have an account?</p>
           <Link to="/register">Sign up here</Link>
         </div>
+
+        <div className="admin-login-link">
+          <Link to="/admin-login" className="admin-link">
+            Admin Login
+          </Link>
+        </div>
       </div>
+
+      {/* Error Modal */}
+      {showErrorModal && (
+        <div className="error-modal-overlay" onClick={closeErrorModal}>
+          <div className="error-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="error-modal-header">
+              <h3>Login Failed</h3>
+              <button className="close-modal-btn" onClick={closeErrorModal}>×</button>
+            </div>
+            <div className="error-modal-content">
+              <div className="error-icon">⚠️</div>
+              <p className="error-message">{errorMessage}</p>
+            </div>
+            <div className="error-modal-actions">
+              <button className="error-modal-btn" onClick={closeErrorModal}>
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

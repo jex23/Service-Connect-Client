@@ -4,6 +4,7 @@ import ProviderHeader from '../components/ProviderHeader';
 import ProviderSidebar from '../components/ProviderSidebar';
 import { providerService } from '../service/providerService';
 import type { ProviderService, ServicePhoto, ProviderServiceScheduleItem, ProviderRegisteredCategory } from '../types/providerService';
+import '../components/ProviderLayout.css';
 import './ProviderServiceFullDetails.css';
 
 const ProviderServiceFullDetails: React.FC = () => {
@@ -786,7 +787,7 @@ const ProviderServiceFullDetails: React.FC = () => {
 
         </div>
       </div>
-    </div>
+  </div>
   );
 };
 

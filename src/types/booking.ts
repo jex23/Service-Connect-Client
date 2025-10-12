@@ -204,3 +204,58 @@ export interface BookingScheduleCheckResponse {
   available_slots: string[];
   existing_bookings: ExistingBooking[];
 }
+
+// Admin Booking Management Types
+export interface AdminBookingUser {
+  id: number;
+  full_name: string;
+  email: string;
+  address: string;
+  status: string;
+}
+
+export interface AdminBookingProvider {
+  id: number;
+  business_name: string;
+  full_name: string;
+  email: string;
+  contact_number: string;
+  address: string;
+  image_logo: string | null;
+  about: string | null;
+  is_active: boolean;
+  status: string;
+}
+
+export interface AdminBookingService {
+  id: number;
+  service_title: string;
+  service_description: string;
+  price_decimal: number | null;
+  duration_minutes: number;
+}
+
+export interface AdminBooking {
+  id: number;
+  user_id: number;
+  provider_id: number;
+  provider_service_id: number;
+  booking_date: string | null;
+  booking_day: string;
+  booking_time: string | null;
+  status: 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled';
+  created_at: string | null;
+  updated_at: string | null;
+  user?: AdminBookingUser;
+  provider?: AdminBookingProvider;
+  service?: AdminBookingService;
+}
+
+export interface UpdateAdminBookingStatusRequest {
+  status: 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled';
+}
+
+export interface UpdateAdminBookingStatusResponse {
+  message: string;
+  booking: AdminBooking;
+}

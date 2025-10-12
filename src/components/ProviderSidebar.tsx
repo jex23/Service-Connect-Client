@@ -27,6 +27,12 @@ const ProviderSidebar: React.FC = () => {
       path: '/provider-bookings',
     },
     {
+      id: 'chat',
+      label: 'Messages',
+      icon: '💬',
+      path: '/provider-chat',
+    },
+    {
       id: 'profile',
       label: 'Profile',
       icon: '👤',
