@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import AdminSidebar from '../components/AdminSidebar';
 import AdminHeader from '../components/AdminHeader';
 import { adminBookingService } from '../service/adminBookingService';
@@ -8,30 +7,17 @@ import '../components/AdminLayout.css';
 import './AdminBookingManagement.css';
 
 const AdminBookingManagement: React.FC = () => {
-  const navigate = useNavigate();
   const [bookings, setBookings] = useState<AdminBooking[]>([]);
   const [filteredBookings, setFilteredBookings] = useState<AdminBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [updatingStatus, setUpdatingStatus] = useState<number | null>(null);
-  const [adminRole, setAdminRole] = useState<string>('');
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<AdminBooking | null>(null);
   const [newStatus, setNewStatus] = useState<'Pending' | 'Confirmed' | 'Completed' | 'Cancelled'>('Pending');
 
   useEffect(() => {
-    // Get admin role
-    const token = localStorage.getItem('adminToken');
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setAdminRole(payload.role || 'admin');
-      } catch (e) {
-        console.error('Failed to parse admin token:', e);
-      }
-    }
-
     fetchBookings();
   }, []);
 
