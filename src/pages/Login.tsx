@@ -33,10 +33,11 @@ const Login: React.FC = () => {
         response = await authService.loginProvider(credentials);
       }
 
-      authService.storeAuthData(response);
+      console.log('📦 [Login] Full response object:', response);
+      console.log('📦 [Login] Response keys:', Object.keys(response));
+      console.log('✅ [Login] Successfully retrieved bearer token:', response.token || response.accessToken || response.access_token);
 
-      // Log bearer token on successful login
-      console.log('✅ Successfully retrieved bearer token:', response.token || response.accessToken || response.access_token);
+      authService.storeAuthData(response);
 
       // Dispatch custom event for auth state change
       window.dispatchEvent(new Event('authChange'));

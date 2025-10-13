@@ -11,29 +11,42 @@ const API_BASE_URL = 'http://localhost:9078/api';
 
 class ChatService {
   private getAuthToken(): string | null {
-    return localStorage.getItem('access_token');
+    const token = localStorage.getItem('access_token');
+    console.log('🔐 [ChatService] Retrieving token from localStorage:', token ? `${token.substring(0, 20)}...` : 'NULL');
+    return token;
   }
 
   private getAuthHeaders() {
     const token = this.getAuthToken();
     if (!token) {
+      console.error('❌ [ChatService] No authentication token found in localStorage');
       throw new Error('No authentication token found. Please log in.');
     }
-    return {
+    const headers = {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     };
+    console.log('📤 [ChatService] Request headers:', {
+      'Authorization': `Bearer ${token.substring(0, 20)}...`,
+      'Content-Type': 'application/json'
+    });
+    return headers;
   }
 
   // Get all conversations for the current user
   async getConversations(): Promise<ChatConversation[]> {
     try {
+      console.log('🌐 [ChatService] GET request to:', `${API_BASE_URL}/chat/conversations`);
       const response = await axios.get(`${API_BASE_URL}/chat/conversations`, {
         headers: this.getAuthHeaders()
       });
+      console.log('✅ [ChatService] GET conversations response status:', response.status);
       return response.data;
-    } catch (error) {
-      console.error('Error fetching conversations:', error);
+    } catch (error: any) {
+      console.error('❌ [ChatService] Error fetching conversations:', error);
+      console.error('❌ [ChatService] Error status:', error.response?.status);
+      console.error('❌ [ChatService] Error data:', error.response?.data);
+      console.error('❌ [ChatService] Request headers sent:', error.config?.headers);
       throw error;
     }
   }

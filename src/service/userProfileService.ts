@@ -14,27 +14,44 @@ class UserProfileService {
 
   private getAuthHeaders() {
     const token = authService.getStoredToken();
-    return {
+    console.log('🔐 [UserProfileService] Retrieving token from authService:', token ? `${token.substring(0, 20)}...` : 'NULL');
+    if (!token) {
+      console.error('❌ [UserProfileService] No authentication token found');
+    }
+    const headers = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     };
+    console.log('📤 [UserProfileService] Request headers:', {
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token.substring(0, 20)}...` : 'Bearer NULL'
+    });
+    return headers;
   }
 
   async getUserProfile(): Promise<UserProfile> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/users/me`, {
+      const url = `${this.baseUrl}/api/users/me`;
+      console.log('🌐 [UserProfileService] GET request to:', url);
+      const response = await fetch(url, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
 
+      console.log('📥 [UserProfileService] Response status:', response.status);
+      console.log('📥 [UserProfileService] Response ok:', response.ok);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Failed to fetch profile' }));
+        console.error('❌ [UserProfileService] Error response data:', errorData);
         throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('✅ [UserProfileService] Successfully fetched profile');
       return data;
     } catch (error) {
+      console.error('❌ [UserProfileService] Error in getUserProfile:', error);
       if (error instanceof Error) {
         throw error;
       }

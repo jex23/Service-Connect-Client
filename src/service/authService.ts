@@ -206,17 +206,24 @@ class AuthService {
   }
 
   storeAuthData(authResponse: AuthResponse): void {
+    console.log('💾 [AuthService] Storing auth data...');
+    console.log('💾 [AuthService] Token to store:', authResponse.access_token ? `${authResponse.access_token.substring(0, 20)}...` : 'UNDEFINED/NULL');
+
     localStorage.setItem('access_token', authResponse.access_token);
-    
+
     if ('user' in authResponse) {
       localStorage.setItem('user', JSON.stringify(authResponse.user));
       localStorage.setItem('userType', 'user');
+      console.log('💾 [AuthService] Stored as user type');
     } else if ('provider' in authResponse) {
       localStorage.setItem('user', JSON.stringify(authResponse.provider));
       localStorage.setItem('userType', 'provider');
+      console.log('💾 [AuthService] Stored as provider type');
     }
-    
+
     localStorage.setItem('isAuthenticated', 'true');
+    console.log('✅ [AuthService] Auth data stored successfully');
+    console.log('✅ [AuthService] Verify stored token:', localStorage.getItem('access_token') ? `${localStorage.getItem('access_token')!.substring(0, 20)}...` : 'NOT FOUND');
   }
 
   getStoredUser() {
@@ -229,7 +236,9 @@ class AuthService {
   }
 
   getStoredToken(): string | null {
-    return localStorage.getItem('access_token');
+    const token = localStorage.getItem('access_token');
+    console.log('🔑 [AuthService] getStoredToken called, token found:', token ? `${token.substring(0, 20)}...` : 'NULL');
+    return token;
   }
 
   isAuthenticated(): boolean {
