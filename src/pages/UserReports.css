@@ -1,4 +1,33 @@
-/* Admin Customer Report Management Styles */
+/* User Reports Page Styles */
+
+.user-reports-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.page-header p {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
 
 /* Report Stats */
 .report-stats {
@@ -200,7 +229,7 @@
 }
 
 .report-subject {
-  max-width: 250px;
+  max-width: 300px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -313,15 +342,6 @@
   background: #c7d2fe;
 }
 
-.btn-icon.btn-edit {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.btn-icon.btn-edit:hover:not(:disabled) {
-  background: #bfdbfe;
-}
-
 /* Modal Styles */
 .modal-overlay {
   position: fixed;
@@ -349,6 +369,10 @@
 
 .modal-content.detail-modal {
   max-width: 800px;
+}
+
+.modal-content.create-modal {
+  max-width: 600px;
 }
 
 .modal-header {
@@ -449,118 +473,6 @@
   border-left: 4px solid #3b82f6;
 }
 
-/* Report Info Modal */
-.report-info-modal {
-  background: #f9fafb;
-  border-radius: 8px;
-  padding: 1rem;
-}
-
-.report-details-modal {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.report-id-modal {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #6b7280;
-  margin: 0;
-}
-
-.report-subject-modal {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0;
-}
-
-.report-type-modal {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0;
-}
-
-/* Form Group */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-group label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-}
-
-.status-select {
-  padding: 0.625rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 0.9375rem;
-  color: #1f2937;
-  background: #ffffff;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.status-select:hover {
-  border-color: #9ca3af;
-}
-
-.status-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.admin-response-textarea {
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 0.9375rem;
-  color: #1f2937;
-  background: #ffffff;
-  font-family: inherit;
-  resize: vertical;
-  transition: all 0.2s ease;
-}
-
-.admin-response-textarea:hover {
-  border-color: #9ca3af;
-}
-
-.admin-response-textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.status-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: #f9fafb;
-  border-radius: 8px;
-}
-
-.status-info p {
-  margin: 0;
-  font-size: 0.9375rem;
-  color: #374151;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.status-info strong {
-  font-weight: 600;
-  color: #1f2937;
-}
-
 /* Modal Footer */
 .modal-footer {
   display: flex;
@@ -611,6 +523,14 @@
   text-align: center;
   padding: 3rem 2rem;
   color: #6b7280;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.empty-state svg {
+  color: #d1d5db;
 }
 
 .empty-state p {
@@ -624,7 +544,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 60vh;
   text-align: center;
   padding: 2rem;
 }
@@ -675,6 +595,14 @@
 }
 
 @media (max-width: 768px) {
+  .user-reports-container {
+    padding: 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
   .report-stats {
     grid-template-columns: 1fr;
   }
@@ -696,7 +624,7 @@
   }
 
   .reports-table {
-    min-width: 1000px;
+    min-width: 900px;
   }
 
   .reports-table th,
@@ -726,4 +654,113 @@
   .detail-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Form Styles */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.form-group .required {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.form-group .optional {
+  color: #9ca3af;
+  font-weight: 400;
+  font-size: 0.875rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  color: #1f2937;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+  border-color: #9ca3af;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+.form-group .field-hint {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  font-weight: 400;
+  margin-top: -0.25rem;
+}
+
+/* Error Message */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #991b1b;
+  font-size: 0.9375rem;
+  margin-bottom: 1.5rem;
+}
+
+.error-message svg {
+  flex-shrink: 0;
+  color: #ef4444;
+}
+
+/* Dropdown Loading State */
+.dropdown-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.dropdown-loading .spinner {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 1rem;
+}
+
+.dropdown-loading p {
+  color: #6b7280;
+  font-size: 0.9375rem;
+  margin: 0;
 }

@@ -23,6 +23,7 @@ import ProviderServiceFullDetails from './pages/ProviderServiceFullDetails'
 import ProviderBookings from './pages/ProviderBookings'
 import UserChat from './pages/UserChat'
 import ProviderChat from './pages/ProviderChat'
+import UserReports from './pages/UserReports'
 import { authService } from './service/authService'
 import './App.css'
 
@@ -140,6 +141,7 @@ function AppContent() {
           <Route path="/user-booking" element={<UserBooking />} />
           <Route path="/user-profile" element={<UserProfile />} />
           <Route path="/user-chat" element={<UserChat />} />
+          <Route path="/user-reports" element={<UserReports />} />
         </Routes>
       </Suspense>
     </div>

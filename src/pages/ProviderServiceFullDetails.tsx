@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ProviderHeader from '../components/ProviderHeader';
 import ProviderSidebar from '../components/ProviderSidebar';
 import { providerService } from '../service/providerService';
+import { authService } from '../service/authService';
+import { userReportService } from '../service/userReportService';
 import type { ProviderService, ServicePhoto, ProviderServiceScheduleItem, ProviderRegisteredCategory } from '../types/providerService';
 import '../components/ProviderLayout.css';
 import './ProviderServiceFullDetails.css';
@@ -29,6 +31,16 @@ const ProviderServiceFullDetails: React.FC = () => {
   const [existingPhotos, setExistingPhotos] = useState<ServicePhoto[]>([]);
   const [newPhotos, setNewPhotos] = useState<File[]>([]);
   const [photosToDelete, setPhotosToDelete] = useState<number[]>([]);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [reportFormData, setReportFormData] = useState({
+    report_target: 'service' as 'provider' | 'service',
+    report_type: 'service_quality' as const,
+    subject: '',
+    description: ''
+  });
 
   useEffect(() => {
     if (serviceId) {
@@ -305,6 +317,77 @@ const ProviderServiceFullDetails: React.FC = () => {
     }
   };
 
+  const handleReportClick = () => {
+    // Check if user is authenticated
+    if (!authService.isAuthenticated()) {
+      alert('Please log in to report services');
+      navigate('/login');
+      return;
+    }
+
+    const userType = authService.getStoredUserType();
+
+    // Only users can report
+    if (userType !== 'user') {
+      alert('Only users can report services. Please log in with a user account.');
+      return;
+    }
+
+    setShowReportModal(true);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+    setReportFormData({
+      report_target: 'service',
+      report_type: 'service_quality',
+      subject: '',
+      description: ''
+    });
+  };
+
+  const handleCloseReportModal = () => {
+    setShowReportModal(false);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+  };
+
+  const handleReportFormChange = (field: string, value: string) => {
+    setReportFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmitReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!service) return;
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const submitData: any = {
+        provider_id: service.provider_id,
+        report_type: reportFormData.report_type,
+        subject: reportFormData.subject,
+        description: reportFormData.description
+      };
+
+      // Only include provider_service_id if reporting the service
+      if (reportFormData.report_target === 'service') {
+        submitData.provider_service_id = service.id;
+      }
+
+      await userReportService.createReport(submitData);
+      setSubmitSuccess(true);
+
+      // Close modal after a short delay
+      setTimeout(() => {
+        handleCloseReportModal();
+      }, 2000);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Failed to submit report');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="provider-layout">
@@ -354,6 +437,20 @@ const ProviderServiceFullDetails: React.FC = () => {
               <button onClick={() => navigate('/provider-services')} className="btn btn-secondary">
                 ← Back to Services
               </button>
+              <button
+                className="btn btn-outline btn-report"
+                onClick={handleReportClick}
+                title="Report Provider or Service"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                Report
+              </button>
+            </div>
+            <div className="header-actions">
               <div className="service-actions">
                 <button
                   className="btn btn-outline"
@@ -781,6 +878,144 @@ const ProviderServiceFullDetails: React.FC = () => {
                     {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Report Modal */}
+          {showReportModal && service && (
+            <div className="modal-overlay" onClick={handleCloseReportModal}>
+              <div className="modal-content report-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h2>Report Service</h2>
+                  <button className="modal-close" onClick={handleCloseReportModal}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+
+                <form onSubmit={handleSubmitReport}>
+                  <div className="modal-body">
+                    {submitSuccess ? (
+                      <div className="success-message">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <h4>Report Submitted Successfully</h4>
+                        <p>Thank you for your report. Our team will review it shortly.</p>
+                      </div>
+                    ) : (
+                      <>
+                        {submitError && (
+                          <div className="error-message">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <line x1="12" y1="8" x2="12" y2="12"></line>
+                              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            {submitError}
+                          </div>
+                        )}
+
+                        <div className="form-group">
+                          <label>What would you like to report?</label>
+                          <div className="report-target-selection">
+                            <label className="radio-option">
+                              <input
+                                type="radio"
+                                name="report_target"
+                                value="provider"
+                                checked={reportFormData.report_target === 'provider'}
+                                onChange={(e) => handleReportFormChange('report_target', e.target.value)}
+                              />
+                              <div className="radio-content">
+                                <span className="radio-title">Report Provider</span>
+                                <span className="radio-description">Report issues with the provider (Provider ID: {service.provider_id})</span>
+                              </div>
+                            </label>
+                            <label className="radio-option">
+                              <input
+                                type="radio"
+                                name="report_target"
+                                value="service"
+                                checked={reportFormData.report_target === 'service'}
+                                onChange={(e) => handleReportFormChange('report_target', e.target.value)}
+                              />
+                              <div className="radio-content">
+                                <span className="radio-title">Report Service</span>
+                                <span className="radio-description">Report issues with this specific service: "{service.service_title}"</span>
+                              </div>
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="report_type">Report Type</label>
+                          <select
+                            id="report_type"
+                            value={reportFormData.report_type}
+                            onChange={(e) => handleReportFormChange('report_type', e.target.value)}
+                            required
+                          >
+                            <option value="service_quality">Service Quality</option>
+                            <option value="provider_behavior">Provider Behavior</option>
+                            <option value="payment_issue">Payment Issue</option>
+                            <option value="cancellation">Cancellation</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="subject">Subject</label>
+                          <input
+                            type="text"
+                            id="subject"
+                            value={reportFormData.subject}
+                            onChange={(e) => handleReportFormChange('subject', e.target.value)}
+                            required
+                            placeholder="Brief summary of your complaint"
+                            maxLength={200}
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="description">Description</label>
+                          <textarea
+                            id="description"
+                            value={reportFormData.description}
+                            onChange={(e) => handleReportFormChange('description', e.target.value)}
+                            required
+                            placeholder="Provide detailed information about your complaint..."
+                            rows={6}
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {!submitSuccess && (
+                    <div className="modal-footer">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={handleCloseReportModal}
+                        disabled={isSubmitting}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? 'Submitting...' : 'Submit Report'}
+                      </button>
+                    </div>
+                  )}
+                </form>
               </div>
             </div>
           )}
