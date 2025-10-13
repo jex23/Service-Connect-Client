@@ -34,6 +34,10 @@ const Login: React.FC = () => {
       }
 
       authService.storeAuthData(response);
+
+      // Log bearer token on successful login
+      console.log('✅ Successfully retrieved bearer token:', response.token || response.accessToken || response.access_token);
+
       // Dispatch custom event for auth state change
       window.dispatchEvent(new Event('authChange'));
 
