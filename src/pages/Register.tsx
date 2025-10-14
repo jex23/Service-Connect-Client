@@ -18,7 +18,6 @@ const Register: React.FC = () => {
   const [idFront, setIdFront] = useState<File | null>(null);
   const [idBack, setIdBack] = useState<File | null>(null);
   const [businessName, setBusinessName] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
   const [birIdFront, setBirIdFront] = useState<File | null>(null);
   const [birIdBack, setBirIdBack] = useState<File | null>(null);
   const [businessPermit, setBusinessPermit] = useState<File | null>(null);
@@ -99,8 +98,24 @@ const Register: React.FC = () => {
       let response;
       
       if (userType === 'customer') {
+        console.log('=== CUSTOMER REGISTRATION DEBUG START ===');
+        console.log('🔍 [Register] Customer registration initiated');
+        console.log('🔍 [Register] Form values:', {
+          name,
+          email,
+          address,
+          passwordLength: password.length,
+          confirmPasswordLength: confirmPassword.length
+        });
+
         // Only require required fields: full_name, email, address, password
         if (!name || !email || !address || !password) {
+          console.error('❌ [Register] Missing required fields:', {
+            hasName: !!name,
+            hasEmail: !!email,
+            hasAddress: !!address,
+            hasPassword: !!password
+          });
           alert('Please fill in all required fields');
           setIsLoading(false);
           return;
@@ -113,31 +128,67 @@ const Register: React.FC = () => {
           address,
           password
         };
-        
+
+        console.log('📋 [Register] User data prepared:', {
+          full_name: name,
+          email: email,
+          address: address,
+          password: '***' // Don't log actual password
+        });
+
         // Prepare files for upload
         const files = {
           ...(idFront && { idFront }),
           ...(idBack && { idBack })
         };
-        
-        response = await authService.registerUser(userData, files);
+
+        console.log('📁 [Register] Files prepared:', {
+          hasIdFront: !!idFront,
+          hasIdBack: !!idBack,
+          idFrontName: idFront?.name,
+          idBackName: idBack?.name,
+          idFrontSize: idFront?.size,
+          idBackSize: idBack?.size,
+          idFrontType: idFront?.type,
+          idBackType: idBack?.type
+        });
+
+        console.log('📤 [Register] Calling authService.registerUser...');
+        try {
+          response = await authService.registerUser(userData, files);
+          console.log('✅ [Register] registerUser returned successfully:', response);
+        } catch (registerError) {
+          console.error('❌ [Register] registerUser threw error:', registerError);
+          console.log('=== CUSTOMER REGISTRATION DEBUG END (ERROR) ===');
+          throw registerError;
+        }
 
         // Register services for selected categories
         if (selectedCategories.length > 0 && 'user' in response) {
+          console.log('🔧 [Register] Registering user services for categories:', selectedCategories);
+          console.log('🔧 [Register] User ID:', response.user.id);
           try {
             for (const categoryId of selectedCategories) {
+              console.log(`  ➕ Registering service for category ${categoryId}...`);
               await userService.registerUserService({
                 user_id: response.user.id,
                 category_id: categoryId,
                 service_title: `${name}'s Service`, // Default service title
                 is_active: true
               });
+              console.log(`  ✅ Service registered for category ${categoryId}`);
             }
+            console.log('✅ [Register] All services registered successfully');
           } catch (serviceError) {
-            console.warn('Failed to register some services:', serviceError);
+            console.warn('⚠️ [Register] Failed to register some services:', serviceError);
             // Don't block registration if service registration fails
           }
+        } else {
+          console.log('ℹ️ [Register] No services to register (selectedCategories.length:', selectedCategories.length, ')');
         }
+
+        console.log('✅ [Register] Customer registration completed successfully');
+        console.log('=== CUSTOMER REGISTRATION DEBUG END (SUCCESS) ===');
       } else if (userType === 'provider') {
         if (providerStep === 1) {
           // Step 1: Basic provider registration
@@ -154,7 +205,6 @@ const Register: React.FC = () => {
             address,
             password,
             ...(businessName && { business_name: businessName }),
-            ...(contactNumber && { contact_number: contactNumber }),
             ...(about && { about: about })
           };
           
@@ -183,12 +233,21 @@ const Register: React.FC = () => {
       }
       
       if (response) {
+        console.log('✅ [Register] Registration successful, storing auth data and navigating...');
         authService.storeAuthData(response);
         navigate('/home');
       }
     } catch (error) {
+      console.error('❌ [Register] handleSubmit caught error:', error);
+      console.error('❌ [Register] Error type:', error instanceof Error ? 'Error' : typeof error);
+      console.error('❌ [Register] Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : 'N/A',
+        raw: error
+      });
       alert(error instanceof Error ? error.message : 'Registration failed. Please try again.');
     } finally {
+      console.log('🏁 [Register] handleSubmit finally block - setting isLoading to false');
       setIsLoading(false);
     }
   };
@@ -291,18 +350,88 @@ const Register: React.FC = () => {
         duration_minutes: currentServiceDuration ? parseInt(currentServiceDuration) : undefined,
         is_active: true
       };
-      
-      console.log('Calling providerService.registerProviderService with:', serviceData);
-      
-      const serviceResponse = await providerService.registerProviderService(serviceData);
-      
-      console.log('Service registration response:', serviceResponse);
 
-      // Upload photos if provided
-      if (servicePhotos.length > 0) {
+      console.log('Calling providerService.registerProviderService with:', serviceData);
+
+      let serviceResponse;
+      try {
+        serviceResponse = await providerService.registerProviderService(serviceData);
+        console.log('Service registration response:', serviceResponse);
+      } catch (serviceError) {
+        console.error('Service registration error:', serviceError);
+
+        // Check if it's a content-length mismatch or network error
+        if (serviceError instanceof TypeError && serviceError.message.includes('fetch')) {
+          console.warn('⚠️ Network/fetch error occurred, but service may have been created');
+          console.warn('⚠️ This is often due to a backend response issue. Continuing with caution...');
+
+          // Ask user if they want to continue
+          console.error('');
+          console.error('🔴 ========================================');
+          console.error('🔴 BACKEND ISSUE DETECTED');
+          console.error('🔴 ========================================');
+          console.error('The backend returned a 201 CREATED status but the response body is corrupted/incomplete.');
+          console.error('');
+          console.error('This is typically caused by:');
+          console.error('  1. Backend response being cut off or incomplete');
+          console.error('  2. Content-Length header not matching actual response size');
+          console.error('  3. Backend crash/timeout while sending response');
+          console.error('  4. Middleware interfering with the response');
+          console.error('');
+          console.error('ACTION REQUIRED:');
+          console.error('  - Check backend server logs for errors');
+          console.error('  - Verify the /api/auth/provider/register-service endpoint');
+          console.error('  - Check if the service was actually created in the database');
+          console.error('🔴 ========================================');
+          console.error('');
+
+          const shouldContinue = confirm(
+            '⚠️ BACKEND ERROR DETECTED\n\n' +
+            'The service may have been created but there was a network error receiving confirmation.\n\n' +
+            'ERROR: ERR_CONTENT_LENGTH_MISMATCH (Backend response is corrupted)\n\n' +
+            'This is a BACKEND ISSUE. Please check the server logs.\n\n' +
+            'Would you like to continue anyway?\n' +
+            '(Note: Photos and schedules may not be uploaded for this service)'
+          );
+
+          if (!shouldContinue) {
+            setIsLoading(false);
+            return;
+          }
+
+          // Create a minimal response to allow continuation
+          serviceResponse = {
+            message: 'Service created (unconfirmed)',
+            service: {
+              id: 0, // Will skip photo/schedule uploads
+              provider_id: registeredProvider.id,
+              category_id: Number(currentServiceCategory),
+              category_name: '',
+              service_title: currentServiceTitle,
+              service_description: currentServiceDescription,
+              price_decimal: currentServicePrice ? parseFloat(currentServicePrice) : undefined,
+              duration_minutes: currentServiceDuration ? parseInt(currentServiceDuration) : undefined,
+              is_active: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              photos: [],
+              photo_count: 0,
+              has_photos: false,
+              schedules: [],
+              schedule_count: 0,
+              has_schedules: false
+            }
+          };
+        } else {
+          throw serviceError;
+        }
+      }
+
+      // Upload photos if provided (skip if we don't have a valid service ID)
+      if (servicePhotos.length > 0 && serviceResponse.service.id > 0) {
         try {
-          console.log('Uploading photos for service:', serviceResponse.service.id);
-          const photoResponse = await providerService.uploadServicePhotos({
+          console.log('Uploading photos for service during registration:', serviceResponse.service.id);
+          const photoResponse = await providerService.uploadServicePhotosRegistration({
             service_id: serviceResponse.service.id,
             photos: servicePhotos
           });
@@ -310,29 +439,35 @@ const Register: React.FC = () => {
         } catch (photoError) {
           console.error('Photo upload failed:', photoError);
         }
+      } else if (servicePhotos.length > 0 && serviceResponse.service.id === 0) {
+        console.warn('⚠️ Skipping photo upload due to unconfirmed service creation');
       }
 
-      // Create schedules - now mandatory
-      try {
-        console.log('Creating schedules for service:', serviceResponse.service.id);
-        const schedules = enabledDays.map(([day, schedule]) => ({
-          schedule_day: day,
-          start_time: schedule.startTime,
-          end_time: schedule.endTime
-        }));
+      // Create schedules - now mandatory (skip if we don't have a valid service ID)
+      if (serviceResponse.service.id > 0) {
+        try {
+          console.log('Creating schedules for service:', serviceResponse.service.id);
+          const schedules = enabledDays.map(([day, schedule]) => ({
+            schedule_day: day,
+            start_time: schedule.startTime,
+            end_time: schedule.endTime
+          }));
 
-        const scheduleResponse = await providerService.createProviderServiceSchedules({
-          provider_service_id: serviceResponse.service.id,
-          schedules: schedules
-        });
-        console.log('Schedule creation response:', scheduleResponse);
-        
-        if (scheduleResponse.failed_schedules && scheduleResponse.failed_schedules.length > 0) {
-          console.warn('Some schedules failed:', scheduleResponse.failed_schedules);
+          const scheduleResponse = await providerService.createProviderServiceSchedules({
+            provider_service_id: serviceResponse.service.id,
+            schedules: schedules
+          });
+          console.log('Schedule creation response:', scheduleResponse);
+
+          if (scheduleResponse.failed_schedules && scheduleResponse.failed_schedules.length > 0) {
+            console.warn('Some schedules failed:', scheduleResponse.failed_schedules);
+          }
+        } catch (scheduleError) {
+          console.error('Schedule creation failed:', scheduleError);
+          alert('Service created but schedule creation failed. You may need to set up schedules later.');
         }
-      } catch (scheduleError) {
-        console.error('Schedule creation failed:', scheduleError);
-        alert('Service created but schedule creation failed. You may need to set up schedules later.');
+      } else {
+        console.warn('⚠️ Skipping schedule creation due to unconfirmed service creation');
       }
 
       const newCompletedServices = [...completedServices, Number(currentServiceCategory)];
@@ -631,10 +766,10 @@ const Register: React.FC = () => {
                   </div>
 
                   {/* Schedule Section - Mandatory */}
-                  <div className="schedule-section" style={{ 
-                    border: '2px solid #007bff', 
-                    padding: '1.5rem', 
-                    borderRadius: '12px', 
+                  <div className="schedule-section" style={{
+                    border: '2px solid #007bff',
+                    padding: '1.5rem',
+                    borderRadius: '12px',
                     backgroundColor: '#f8f9fa',
                     marginTop: '1rem',
                     boxShadow: '0 2px 8px rgba(0,123,255,0.1)'
@@ -733,12 +868,12 @@ const Register: React.FC = () => {
                       ))}
                     </div>
                     
-                    <div style={{ 
-                      marginTop: '1rem', 
-                      padding: '0.75rem', 
-                      backgroundColor: '#fff3cd', 
-                      border: '1px solid #ffeaa7', 
-                      borderRadius: '6px' 
+                    <div style={{
+                      marginTop: '1rem',
+                      padding: '0.75rem',
+                      backgroundColor: '#fff3cd',
+                      border: '1px solid #ffeaa7',
+                      borderRadius: '6px'
                     }}>
                       <p style={{ fontSize: '0.85rem', color: '#856404', margin: 0 }}>
                         <strong>Note:</strong> You must select at least one day with valid time ranges to proceed.
@@ -923,16 +1058,6 @@ const Register: React.FC = () => {
                       value={businessName}
                       onChange={(e) => setBusinessName(e.target.value)}
                       placeholder="Enter your business name"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="contactNumber">Contact Number (Optional):</label>
-                    <input
-                      type="tel"
-                      id="contactNumber"
-                      value={contactNumber}
-                      onChange={(e) => setContactNumber(e.target.value)}
-                      placeholder="Enter your contact number"
                     />
                   </div>
                   <div>

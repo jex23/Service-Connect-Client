@@ -90,32 +90,54 @@ class AuthService {
     idBack?: File;
   }): Promise<UserAuthResponse> {
     try {
+      console.log('=== USER REGISTRATION DEBUG START ===');
+      console.log('📝 [AuthService] registerUser called');
+      console.log('📝 [AuthService] URL:', `${this.baseUrl}${API_CONFIG.ENDPOINTS.USER_REGISTER}`);
+      console.log('📝 [AuthService] User data:', userData);
+      console.log('📝 [AuthService] Files provided:', {
+        hasIdFront: !!files?.idFront,
+        hasIdBack: !!files?.idBack,
+        idFrontName: files?.idFront?.name,
+        idBackName: files?.idBack?.name,
+        idFrontSize: files?.idFront?.size,
+        idBackSize: files?.idBack?.size
+      });
+
       let response;
-      
+
       if (files && (files.idFront || files.idBack)) {
+        console.log('📤 [AuthService] Using FormData (files present)');
         // Use FormData when files are present
         const formData = new FormData();
-        
+
         // Add all text fields
         Object.entries(userData).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
+            console.log(`  ➕ Adding field: ${key} = ${value}`);
             formData.append(key, value.toString());
           }
         });
-        
+
         // Add files
         if (files.idFront) {
+          console.log('  ➕ Adding id_front file:', files.idFront.name);
           formData.append('id_front', files.idFront);
         }
         if (files.idBack) {
+          console.log('  ➕ Adding id_back file:', files.idBack.name);
           formData.append('id_back', files.idBack);
         }
-        
+
+        console.log('📤 [AuthService] FormData keys:', Array.from(formData.keys()));
+
         response = await fetch(`${this.baseUrl}${API_CONFIG.ENDPOINTS.USER_REGISTER}`, {
           method: 'POST',
           body: formData,
         });
       } else {
+        console.log('📤 [AuthService] Using JSON (no files)');
+        console.log('📤 [AuthService] JSON body:', JSON.stringify(userData, null, 2));
+
         // Use JSON when no files
         response = await fetch(`${this.baseUrl}${API_CONFIG.ENDPOINTS.USER_REGISTER}`, {
           method: 'POST',
@@ -126,14 +148,34 @@ class AuthService {
         });
       }
 
+      console.log('📥 [AuthService] Response status:', response.status);
+      console.log('📥 [AuthService] Response ok:', response.ok);
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'User registration failed' }));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        console.error('❌ [AuthService] Registration failed with status:', response.status);
+        const errorText = await response.text();
+        console.error('❌ [AuthService] Error response body (raw):', errorText);
+
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+          console.error('❌ [AuthService] Error response body (parsed):', errorData);
+        } catch (e) {
+          console.error('❌ [AuthService] Could not parse error response as JSON');
+          errorData = { message: errorText || 'User registration failed' };
+        }
+
+        console.log('=== USER REGISTRATION DEBUG END (FAILED) ===');
+        throw new Error(errorData.message || errorData.error || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('✅ [AuthService] Registration successful:', data);
+      console.log('=== USER REGISTRATION DEBUG END (SUCCESS) ===');
       return data;
     } catch (error) {
+      console.error('❌ [AuthService] Exception during registration:', error);
+      console.log('=== USER REGISTRATION DEBUG END (EXCEPTION) ===');
       if (error instanceof Error) {
         throw error;
       }
