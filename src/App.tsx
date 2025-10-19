@@ -13,6 +13,7 @@ import AdminServiceDetails from './pages/AdminServiceDetails'
 import AdminBookingManagement from './pages/AdminBookingManagement'
 import AdminCustomerReportManagement from './pages/AdminCustomerReportManagement'
 import AdminSaleManagement from './pages/AdminSaleManagement'
+import AdminVerification from './pages/AdminVerification'
 import Register from './pages/Register'
 import ServiceDetails from './pages/ServiceDetails'
 import ProviderDetails from './pages/ProviderDetails'
@@ -128,6 +129,7 @@ function AppContent() {
           <Route path="/admin-booking-management" element={<AdminBookingManagement />} />
           <Route path="/admin-customer-reports" element={<AdminCustomerReportManagement />} />
           <Route path="/admin-sale-management" element={<AdminSaleManagement />} />
+          <Route path="/admin-verification" element={<AdminVerification />} />
           <Route path="/register" element={<Register />} />
           <Route path="/service/:serviceId" element={<ServiceDetails />} />
           <Route path="/provider/:providerId" element={<ProviderDetails />} />

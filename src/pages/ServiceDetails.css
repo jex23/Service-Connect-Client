@@ -1,9 +1,10 @@
-/* Clean Modern Minimalist Design - Service Details */
+/* Modern Gradient Design matching Home.tsx */
 .service-details-container {
   min-height: 100vh;
   width: 100%;
   max-width: 100vw;
-  background: #fafbfc;
+  background: linear-gradient(180deg, #ff69d4 0%, #ffb3e6 30%, #ffd9f0 60%, #ffffff 100%);
+  background-attachment: fixed;
   color: #1a1a1a;
   display: flex;
   flex-direction: column;
@@ -247,48 +248,49 @@
   box-sizing: border-box;
 }
 
-/* Back Button */
+/* Modern Back Buttons */
 .back-btn {
-  background: #ffffff;
-  border: 2px solid #e1e8ed;
-  color: #1a1a1a;
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  color: #8b5cf6;
+  padding: 0.875rem 1.75rem;
+  border-radius: 50px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.9375rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-bottom: 2rem;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .back-btn:hover {
-  border-color: #6366f1;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(139, 92, 246, 0.3);
+  background: #ffffff;
 }
 
 .back-btn-primary {
-  background: #6366f1;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
   color: white;
-  border: 1px solid #6366f1;
-  padding: 0.875rem 2rem;
-  border-radius: 12px;
+  border: 2px solid transparent;
+  padding: 1rem 2.25rem;
+  border-radius: 50px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1rem;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
   margin-top: 1.5rem;
 }
 
 .back-btn-primary:hover {
-  background: #5558e3;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(139, 92, 246, 0.5);
 }
 
 /* Service Details Content */
@@ -306,12 +308,15 @@
   gap: 1.5rem;
 }
 
-/* Photo Gallery */
+/* Photo Gallery with glassmorphism */
 .photo-gallery {
-  background: #ffffff;
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.9);
 }
 
 .main-photo {
@@ -418,20 +423,32 @@
   border-color: #6366f1;
 }
 
-/* Schedule Section */
+/* Schedule Section with glassmorphism */
 .schedule-section {
-  background: #ffffff;
-  border-radius: 16px;
-  border: 1px solid #e1e8ed;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
   padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.schedule-section:hover {
+  box-shadow: 0 16px 50px rgba(139, 92, 246, 0.18);
+  transform: translateY(-2px);
 }
 
 .schedule-section h3 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1a1a1a;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0 0 1.5rem 0;
+  letter-spacing: -0.01em;
 }
 
 .schedule-info {
@@ -442,31 +459,44 @@
 }
 
 .schedule-group {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(139, 92, 246, 0.15);
+  border-radius: 16px;
+  padding: 1.25rem 1.75rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .schedule-group:hover {
-  background: #f3f4f6;
-  border-color: #6366f1;
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(139, 92, 246, 0.3);
+  transform: translateX(8px);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.15);
 }
 
 .schedule-days {
-  color: #1a1a1a;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.0625rem;
+  letter-spacing: -0.01em;
 }
 
 .schedule-time {
-  color: #6b7280;
-  font-weight: 500;
+  color: #1a1a1a;
+  font-weight: 600;
   font-size: 0.9375rem;
+  background: rgba(139, 92, 246, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  border: 2px solid rgba(139, 92, 246, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 .schedule-note {
@@ -484,13 +514,21 @@
   gap: 1.5rem;
 }
 
-/* Service Header Section */
+/* Service Header Section with glassmorphism */
 .service-header-section {
-  background: #ffffff;
-  border-radius: 16px;
-  border: 1px solid #e1e8ed;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
   padding: 2rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.service-header-section:hover {
+  box-shadow: 0 24px 70px rgba(139, 92, 246, 0.2);
+  transform: translateY(-2px);
 }
 
 .service-category-badge {

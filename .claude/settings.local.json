@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(yarn add:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(lsof:*)"
     ],
     "deny": []
   }

@@ -12,13 +12,13 @@ export interface Provider {
   image_logo: string | null;
   about: string | null;
   is_active: boolean;
-  status: 'active' | 'inactive' | 'suspended';
+  status: 'active' | 'inactive' | 'suspended' | 'for_verification';
   created_at: string | null;
   updated_at: string | null;
 }
 
 export interface UpdateProviderStatusRequest {
-  status: 'active' | 'inactive' | 'suspended';
+  status: 'active' | 'inactive' | 'suspended' | 'for_verification';
 }
 
 export interface UpdateProviderStatusResponse {
@@ -30,4 +30,14 @@ export interface UpdateProviderStatusResponse {
     status: string;
     is_active: boolean;
   };
+}
+
+export interface ProviderVerificationApprovalRequest {
+  status: 'approved' | 'rejected';
+  reason?: string;
+}
+
+export interface ProviderVerificationApprovalResponse {
+  message: string;
+  provider: Provider;
 }

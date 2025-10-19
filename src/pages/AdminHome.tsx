@@ -1,30 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminService } from '../service/adminService';
+import { adminDashboardService } from '../service/adminDashboardService';
 import AdminSidebar from '../components/AdminSidebar';
 import AdminHeader from '../components/AdminHeader';
 import type { Admin } from '../types/admin';
+import type { DashboardSummary } from '../types/dashboard';
 import '../components/AdminLayout.css';
 import './AdminHome.css';
 
 const AdminHome: React.FC = () => {
   const navigate = useNavigate();
   const [admin, setAdmin] = useState<Admin | null>(null);
+  const [dashboardSummary, setDashboardSummary] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAdminProfile();
+    fetchDashboardSummary();
   }, []);
 
   const fetchAdminProfile = async () => {
     try {
-      setLoading(true);
       const profile = await adminService.getAdminProfile();
       setAdmin(profile as Admin);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load profile');
       console.error('Failed to fetch admin profile:', err);
+    }
+  };
+
+  const fetchDashboardSummary = async () => {
+    try {
+      setLoading(true);
+      const summary = await adminDashboardService.getDashboardSummary();
+      setDashboardSummary(summary);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard summary');
+      console.error('Failed to fetch dashboard summary:', err);
     } finally {
       setLoading(false);
     }
@@ -115,8 +129,14 @@ const AdminHome: React.FC = () => {
             </div>
             <div className="stat-content">
               <h3>Users</h3>
-              <p className="stat-value">-</p>
+              <p className="stat-value">{dashboardSummary?.users.total_users ?? '-'}</p>
               <span className="stat-label">Total Users</span>
+              {dashboardSummary && (
+                <div className="stat-breakdown">
+                  <small>Active: {dashboardSummary.users.active_users}</small>
+                  <small>Pending: {dashboardSummary.users.pending_verification_users}</small>
+                </div>
+              )}
             </div>
           </div>
 
@@ -129,8 +149,14 @@ const AdminHome: React.FC = () => {
             </div>
             <div className="stat-content">
               <h3>Providers</h3>
-              <p className="stat-value">-</p>
+              <p className="stat-value">{dashboardSummary?.providers.total_providers ?? '-'}</p>
               <span className="stat-label">Total Providers</span>
+              {dashboardSummary && (
+                <div className="stat-breakdown">
+                  <small>Active: {dashboardSummary.providers.active_providers}</small>
+                  <small>Pending: {dashboardSummary.providers.pending_verification_providers}</small>
+                </div>
+              )}
             </div>
           </div>
 
@@ -143,8 +169,14 @@ const AdminHome: React.FC = () => {
             </div>
             <div className="stat-content">
               <h3>Services</h3>
-              <p className="stat-value">-</p>
+              <p className="stat-value">{dashboardSummary?.services.total_services ?? '-'}</p>
               <span className="stat-label">Total Services</span>
+              {dashboardSummary && (
+                <div className="stat-breakdown">
+                  <small>Active: {dashboardSummary.services.active_services}</small>
+                  <small>Inactive: {dashboardSummary.services.inactive_services}</small>
+                </div>
+              )}
             </div>
           </div>
 
@@ -159,8 +191,36 @@ const AdminHome: React.FC = () => {
             </div>
             <div className="stat-content">
               <h3>Bookings</h3>
-              <p className="stat-value">-</p>
+              <p className="stat-value">{dashboardSummary?.bookings.total_bookings ?? '-'}</p>
               <span className="stat-label">Total Bookings</span>
+              {dashboardSummary && (
+                <div className="stat-breakdown">
+                  <small>Confirmed: {dashboardSummary.bookings.confirmed_bookings}</small>
+                  <small>Pending: {dashboardSummary.bookings.pending_bookings}</small>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+            <div className="stat-content">
+              <h3>Sales</h3>
+              <p className="stat-value">
+                {dashboardSummary ? `₱${dashboardSummary.sales.total_sales.toLocaleString()}` : '-'}
+              </p>
+              <span className="stat-label">Total Revenue</span>
+              {dashboardSummary && (
+                <div className="stat-breakdown">
+                  <small>Paid Bookings: {dashboardSummary.sales.total_paid_bookings}</small>
+                  <small>Pending: {dashboardSummary.sales.pending_payments}</small>
+                </div>
+              )}
             </div>
           </div>
         </section>

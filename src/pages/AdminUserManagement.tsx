@@ -20,7 +20,7 @@ const AdminUserManagement: React.FC = () => {
 
   useEffect(() => {
     // Get admin role
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('access_token');
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
@@ -61,7 +61,8 @@ const AdminUserManagement: React.FC = () => {
 
   const handleOpenStatusModal = (user: User) => {
     setSelectedUser(user);
-    setNewStatus(user.status);
+    // Filter out 'for_verification' status as it's not editable in this page
+    setNewStatus(user.status === 'for_verification' ? 'active' : user.status);
     setShowStatusModal(true);
   };
 
@@ -75,13 +76,8 @@ const AdminUserManagement: React.FC = () => {
     if (!selectedUser) return;
 
     // Check permissions
-    if (adminRole === 'moderator' && newStatus !== 'inactive') {
-      alert('Moderators can only set status to inactive');
-      return;
-    }
-
-    if (adminRole === 'admin' && newStatus === 'suspended') {
-      alert('Only superadmins can suspend users');
+    if (adminRole === 'moderator') {
+      alert('Moderators cannot update user status');
       return;
     }
 
@@ -329,7 +325,7 @@ const AdminUserManagement: React.FC = () => {
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
-                    {(adminRole === 'superadmin') && (
+                    {(adminRole === 'admin' || adminRole === 'superadmin') && (
                       <option value="suspended">Suspended</option>
                     )}
                   </select>
@@ -340,25 +336,25 @@ const AdminUserManagement: React.FC = () => {
                   <p><strong>New Status:</strong> <span className={`status-badge ${newStatus}`}>{newStatus}</span></p>
                 </div>
 
-                {adminRole === 'moderator' && newStatus !== 'inactive' && (
+                {adminRole === 'moderator' && (
                   <div className="alert alert-warning">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="10"></circle>
                       <line x1="12" y1="8" x2="12" y2="12"></line>
                       <line x1="12" y1="16" x2="12.01" y2="16"></line>
                     </svg>
-                    Moderators can only set status to inactive
+                    Moderators cannot update user status
                   </div>
                 )}
 
-                {adminRole === 'admin' && newStatus === 'suspended' && (
+                {(adminRole === 'admin' || adminRole === 'superadmin') && newStatus === 'suspended' && (
                   <div className="alert alert-warning">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="10"></circle>
                       <line x1="12" y1="8" x2="12" y2="12"></line>
                       <line x1="12" y1="16" x2="12.01" y2="16"></line>
                     </svg>
-                    Only superadmins can suspend users
+                    Warning: Suspending a user will restrict their access
                   </div>
                 )}
               </div>

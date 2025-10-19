@@ -59,9 +59,12 @@ const Home: React.FC = () => {
 
         const servicesResponse = await publicServicesService.getPublicServices(servicesFilters);
 
-        // Extract unique providers from services
+        // Filter to only show active services
+        const activeServices = servicesResponse.services.filter(service => service.is_active === true);
+
+        // Extract unique providers from active services only
         const uniqueProvidersMap = new Map<number, Provider>();
-        servicesResponse.services.forEach(service => {
+        activeServices.forEach(service => {
           if (!uniqueProvidersMap.has(service.provider.id)) {
             uniqueProvidersMap.set(service.provider.id, {
               id: service.provider.id,
@@ -137,15 +140,46 @@ const Home: React.FC = () => {
       <main className="home-main">
         {/* Hero Section */}
         <section className="hero-section">
-          <h2 className="hero-title">Find Services Near You</h2>
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Search for providers..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
+          <div className="hero-content">
+            <div className="hero-badge">Your Trusted Service Marketplace</div>
+            <h1 className="hero-title">
+              Discover Quality Services
+              <span className="hero-title-highlight"> Near You</span>
+            </h1>
+            <p className="hero-subtitle">
+              Connect with verified professionals and get the service you need, when you need it.
+            </p>
+
+            <div className="search-container">
+              <div className="search-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.35-4.35"></path>
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Search for providers, services, or categories..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+            </div>
+
+            {!isAuthenticated && (
+              <div className="hero-cta">
+                <Link to="/register" className="hero-btn primary">
+                  Get Started Free
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14"></path>
+                    <path d="m12 5 7 7-7 7"></path>
+                  </svg>
+                </Link>
+                <Link to="/login" className="hero-btn secondary">
+                  Sign In
+                </Link>
+              </div>
+            )}
           </div>
         </section>
 
@@ -153,10 +187,13 @@ const Home: React.FC = () => {
         <section className="services-section">
           <div className="section-header">
             <div className="section-header-left">
-              <h3>Available Providers</h3>
-              <p>{loading ? 'Loading...' : `${providers.length} providers found`}</p>
+              <h2>Browse Our Providers</h2>
+              <p className="section-subtitle">
+                {loading ? 'Loading...' : `${providers.length} professional${providers.length !== 1 ? 's' : ''} ready to serve you`}
+              </p>
             </div>
             <div className="section-header-right">
+              <div className="filter-label">Filter by:</div>
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value === 'all' ? 'all' : Number(e.target.value))}
@@ -174,7 +211,14 @@ const Home: React.FC = () => {
 
           {providers.length === 0 && !loading ? (
             <div className="empty-state">
-              <p>No providers found. Try adjusting your search.</p>
+              <div className="empty-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.35-4.35"></path>
+                </svg>
+              </div>
+              <h3>No providers found</h3>
+              <p>Try adjusting your search or filter to find what you're looking for</p>
             </div>
           ) : (
             <div className="services-grid">
@@ -191,12 +235,39 @@ const Home: React.FC = () => {
 
         {!isAuthenticated && (
           <section className="cta-section">
+            <div className="cta-background-pattern"></div>
             <div className="cta-content">
-              <h3>Ready to Connect?</h3>
-              <p>Join Service Connect to book services or offer your own</p>
+              <h2>Ready to Get Started?</h2>
+              <p>Join thousands of satisfied customers who found their perfect service match</p>
               <div className="cta-actions">
-                <Link to="/register" className="cta-btn primary">Get Started</Link>
+                <Link to="/register" className="cta-btn primary">
+                  Create Free Account
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14"></path>
+                    <path d="m12 5 7 7-7 7"></path>
+                  </svg>
+                </Link>
                 <Link to="/login" className="cta-btn secondary">Sign In</Link>
+              </div>
+              <div className="cta-features">
+                <div className="cta-feature">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  Free to join
+                </div>
+                <div className="cta-feature">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  No hidden fees
+                </div>
+                <div className="cta-feature">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  Cancel anytime
+                </div>
               </div>
             </div>
           </section>

@@ -114,10 +114,14 @@ const ProviderDetails: React.FC = () => {
           ...service,
           provider: serviceProvider
         }));
-        
+
+        // Filter to only show active services
+        const activeServices = servicesWithProvider.filter(service => service.is_active === true);
+
         console.log('Services with provider:', servicesWithProvider);
+        console.log('Active services only:', activeServices);
         setProvider(convertedProvider);
-        setServices(servicesWithProvider);
+        setServices(activeServices);
         console.log('Provider set successfully from services');
       } else {
         console.log('No services found for provider. Trying general providers list...');
