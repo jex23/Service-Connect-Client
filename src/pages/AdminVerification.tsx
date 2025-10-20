@@ -21,6 +21,13 @@ const AdminVerification: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
   const [viewingImage, setViewingImage] = useState<{ url: string; title: string } | null>(null);
+  const [processing, setProcessing] = useState(false);
+  const [resultModal, setResultModal] = useState<{
+    show: boolean;
+    type: 'success' | 'error';
+    message: string;
+    title: string;
+  }>({ show: false, type: 'success', message: '', title: '' });
 
   useEffect(() => {
     // Check if user is admin
@@ -55,56 +62,108 @@ const AdminVerification: React.FC = () => {
   };
 
   const handleApproveUser = async (userId: number) => {
+    setProcessing(true);
     try {
       await adminVerificationService.approveUser(userId);
       // Remove the approved user from the list
       setUsers(users.filter(u => u.id !== userId));
       setSelectedUser(null);
-      alert('User approved successfully');
+      setResultModal({
+        show: true,
+        type: 'success',
+        title: 'Success',
+        message: 'User approved successfully'
+      });
     } catch (error) {
       console.error('Failed to approve user:', error);
-      alert(error instanceof Error ? error.message : 'Failed to approve user');
+      setResultModal({
+        show: true,
+        type: 'error',
+        title: 'Error',
+        message: error instanceof Error ? error.message : 'Failed to approve user'
+      });
+    } finally {
+      setProcessing(false);
     }
   };
 
   const handleRejectUser = async (userId: number) => {
     const reason = prompt('Please provide a reason for rejection (optional):');
+    setProcessing(true);
     try {
       await adminVerificationService.rejectUser(userId, reason || undefined);
       // Remove the rejected user from the list
       setUsers(users.filter(u => u.id !== userId));
       setSelectedUser(null);
-      alert('User rejected successfully');
+      setResultModal({
+        show: true,
+        type: 'success',
+        title: 'Success',
+        message: 'User rejected successfully'
+      });
     } catch (error) {
       console.error('Failed to reject user:', error);
-      alert(error instanceof Error ? error.message : 'Failed to reject user');
+      setResultModal({
+        show: true,
+        type: 'error',
+        title: 'Error',
+        message: error instanceof Error ? error.message : 'Failed to reject user'
+      });
+    } finally {
+      setProcessing(false);
     }
   };
 
   const handleApproveProvider = async (providerId: number) => {
+    setProcessing(true);
     try {
       await adminVerificationService.approveProvider(providerId);
       // Remove the approved provider from the list
       setProviders(providers.filter(p => p.id !== providerId));
       setSelectedProvider(null);
-      alert('Provider approved successfully');
+      setResultModal({
+        show: true,
+        type: 'success',
+        title: 'Success',
+        message: 'Provider approved successfully'
+      });
     } catch (error) {
       console.error('Failed to approve provider:', error);
-      alert(error instanceof Error ? error.message : 'Failed to approve provider');
+      setResultModal({
+        show: true,
+        type: 'error',
+        title: 'Error',
+        message: error instanceof Error ? error.message : 'Failed to approve provider'
+      });
+    } finally {
+      setProcessing(false);
     }
   };
 
   const handleRejectProvider = async (providerId: number) => {
     const reason = prompt('Please provide a reason for rejection (optional):');
+    setProcessing(true);
     try {
       await adminVerificationService.rejectProvider(providerId, reason || undefined);
       // Remove the rejected provider from the list
       setProviders(providers.filter(p => p.id !== providerId));
       setSelectedProvider(null);
-      alert('Provider rejected successfully');
+      setResultModal({
+        show: true,
+        type: 'success',
+        title: 'Success',
+        message: 'Provider rejected successfully'
+      });
     } catch (error) {
       console.error('Failed to reject provider:', error);
-      alert(error instanceof Error ? error.message : 'Failed to reject provider');
+      setResultModal({
+        show: true,
+        type: 'error',
+        title: 'Error',
+        message: error instanceof Error ? error.message : 'Failed to reject provider'
+      });
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -567,6 +626,58 @@ const AdminVerification: React.FC = () => {
             </div>
             <div className="image-viewer-body">
               <img src={viewingImage.url} alt={viewingImage.title} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading Spinner Overlay */}
+      {processing && (
+        <div className="modal-overlay processing-overlay">
+          <div className="processing-spinner">
+            <div className="spinner"></div>
+            <p>Processing...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Result Modal */}
+      {resultModal.show && (
+        <div className="modal-overlay" onClick={() => setResultModal({ ...resultModal, show: false })}>
+          <div className="modal-content result-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{resultModal.title}</h2>
+              <button className="modal-close" onClick={() => setResultModal({ ...resultModal, show: false })}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className={`result-icon ${resultModal.type}`}>
+                {resultModal.type === 'success' ? (
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="9 12 11 14 15 10"></polyline>
+                  </svg>
+                ) : (
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                )}
+              </div>
+              <p className="result-message">{resultModal.message}</p>
+            </div>
+            <div className="modal-footer">
+              <button
+                className="btn btn-primary"
+                onClick={() => setResultModal({ ...resultModal, show: false })}
+              >
+                OK
+              </button>
             </div>
           </div>
         </div>
