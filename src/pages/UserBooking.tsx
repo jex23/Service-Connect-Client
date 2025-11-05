@@ -154,10 +154,37 @@ const UserBooking: React.FC = () => {
 
       <div className="booking-results">
         {loading ? (
-          <div className="loading-grid">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="booking-card-skeleton"></div>
-            ))}
+          <div className="table-container">
+            <table className="bookings-table">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Provider</th>
+                  <th>Date & Time</th>
+                  <th>Price</th>
+                  <th>Duration</th>
+                  <th>Status</th>
+                  <th>Payment</th>
+                  <th>Booked On</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <tr key={index} className="skeleton-row">
+                    <td><div className="skeleton-cell skeleton-service"></div></td>
+                    <td><div className="skeleton-cell skeleton-provider"></div></td>
+                    <td><div className="skeleton-cell skeleton-datetime"></div></td>
+                    <td><div className="skeleton-cell skeleton-price"></div></td>
+                    <td><div className="skeleton-cell skeleton-duration"></div></td>
+                    <td><div className="skeleton-cell skeleton-status"></div></td>
+                    <td><div className="skeleton-cell skeleton-payment"></div></td>
+                    <td><div className="skeleton-cell skeleton-booked"></div></td>
+                    <td><div className="skeleton-cell skeleton-actions"></div></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : bookings.length === 0 ? (
           <div className="empty-state">
@@ -166,84 +193,87 @@ const UserBooking: React.FC = () => {
             <p>You haven't made any bookings yet or no bookings match your filter.</p>
           </div>
         ) : (
-          <div className="booking-list">
-            {bookings.map((booking) => {
-              console.log('Booking data:', booking);
-              console.log('Provider data:', booking.provider);
-              console.log('Service data:', booking.service);
-              return (
-              <div key={booking.id} className="booking-card">
-                <div className="booking-header-section">
-                  <div className="booking-info">
-                    <h3 className="service-title">{booking.service?.service_title || 'Unknown Service'}</h3>
-                    <p className="provider-name">
-                      by {booking.provider?.business_name || booking.provider?.full_name || 'Unknown Provider'}
-                    </p>
-                  </div>
-                  <div
-                    className="booking-status"
-                    style={{ backgroundColor: getStatusColor(booking.status) }}
-                  >
-                    {booking.status}
-                  </div>
-                </div>
-
-                <div className="booking-details">
-                  <div className="detail-row">
-                    <span className="detail-label">Date:</span>
-                    <span className="detail-value">{formatDate(booking.booking_date)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Time:</span>
-                    <span className="detail-value">{booking.booking_time}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Price:</span>
-                    <span className="detail-value">{formatPrice(booking.service?.price_decimal)}</span>
-                  </div>
-                  {booking.service?.duration_minutes && (
-                    <div className="detail-row">
-                      <span className="detail-label">Duration:</span>
-                      <span className="detail-value">{booking.service.duration_minutes} minutes</span>
-                    </div>
-                  )}
-                  {booking.payment_status && (
-                    <div className="detail-row">
-                      <span className="detail-label">Payment:</span>
-                      <span
-                        className="detail-value payment-status"
-                        style={{ color: booking.payment_status.status === 'Paid' ? '#10b981' : '#f59e0b' }}
-                      >
-                        {booking.payment_status.status}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="booking-description">
-                  <p>{booking.service?.service_description || 'No description available'}</p>
-                </div>
-
-                <div className="booking-actions">
-                  {booking.status === 'Pending' && (
-                    <button
-                      onClick={() => setCancellationModal({
-                        isOpen: true,
-                        booking,
-                        reason: ''
-                      })}
-                      className="cancel-btn"
-                    >
-                      Cancel Booking
-                    </button>
-                  )}
-                  <div className="booking-date-created">
-                    Booked on {formatDate(booking.created_at)}
-                  </div>
-                </div>
-              </div>
-              );
-            })}
+          <div className="table-container">
+            <table className="bookings-table">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Provider</th>
+                  <th>Date & Time</th>
+                  <th>Price</th>
+                  <th>Duration</th>
+                  <th>Status</th>
+                  <th>Payment</th>
+                  <th>Booked On</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map((booking) => {
+                  console.log('Booking data:', booking);
+                  console.log('Provider data:', booking.provider);
+                  console.log('Service data:', booking.service);
+                  return (
+                    <tr key={booking.id}>
+                      <td>
+                        <div className="service-cell">
+                          <div className="service-title">{booking.service?.service_title || 'Unknown Service'}</div>
+                          <div className="service-description">{booking.service?.service_description || 'No description'}</div>
+                        </div>
+                      </td>
+                      <td className="provider-cell">
+                        {booking.provider?.business_name || booking.provider?.full_name || 'Unknown Provider'}
+                      </td>
+                      <td>
+                        <div className="datetime-cell">
+                          <div className="date-value">{formatDate(booking.booking_date)}</div>
+                          <div className="time-value">{booking.booking_time}</div>
+                        </div>
+                      </td>
+                      <td className="price-cell">{formatPrice(booking.service?.price_decimal)}</td>
+                      <td className="duration-cell">
+                        {booking.service?.duration_minutes ? `${booking.service.duration_minutes} min` : '-'}
+                      </td>
+                      <td>
+                        <span
+                          className="status-badge"
+                          style={{ backgroundColor: getStatusColor(booking.status) }}
+                        >
+                          {booking.status}
+                        </span>
+                      </td>
+                      <td>
+                        {booking.payment_status ? (
+                          <span
+                            className="payment-badge"
+                            style={{ color: booking.payment_status.status === 'Paid' ? '#10b981' : '#f59e0b' }}
+                          >
+                            {booking.payment_status.status}
+                          </span>
+                        ) : (
+                          '-'
+                        )}
+                      </td>
+                      <td className="booked-date-cell">{formatDate(booking.created_at)}</td>
+                      <td className="actions-cell">
+                        {booking.status === 'Pending' && (
+                          <button
+                            onClick={() => setCancellationModal({
+                              isOpen: true,
+                              booking,
+                              reason: ''
+                            })}
+                            className="cancel-btn-table"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
