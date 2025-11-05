@@ -164,7 +164,6 @@ const UserBooking: React.FC = () => {
                   <th>Price</th>
                   <th>Duration</th>
                   <th>Status</th>
-                  <th>Payment</th>
                   <th>Booked On</th>
                   <th>Actions</th>
                 </tr>
@@ -178,7 +177,6 @@ const UserBooking: React.FC = () => {
                     <td><div className="skeleton-cell skeleton-price"></div></td>
                     <td><div className="skeleton-cell skeleton-duration"></div></td>
                     <td><div className="skeleton-cell skeleton-status"></div></td>
-                    <td><div className="skeleton-cell skeleton-payment"></div></td>
                     <td><div className="skeleton-cell skeleton-booked"></div></td>
                     <td><div className="skeleton-cell skeleton-actions"></div></td>
                   </tr>
@@ -203,7 +201,6 @@ const UserBooking: React.FC = () => {
                   <th>Price</th>
                   <th>Duration</th>
                   <th>Status</th>
-                  <th>Payment</th>
                   <th>Booked On</th>
                   <th>Actions</th>
                 </tr>
@@ -241,18 +238,6 @@ const UserBooking: React.FC = () => {
                         >
                           {booking.status}
                         </span>
-                      </td>
-                      <td>
-                        {booking.payment_status ? (
-                          <span
-                            className="payment-badge"
-                            style={{ color: booking.payment_status.status === 'Paid' ? '#10b981' : '#f59e0b' }}
-                          >
-                            {booking.payment_status.status}
-                          </span>
-                        ) : (
-                          '-'
-                        )}
                       </td>
                       <td className="booked-date-cell">{formatDate(booking.created_at)}</td>
                       <td className="actions-cell">

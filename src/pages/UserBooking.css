@@ -241,6 +241,47 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9375rem;
+  table-layout: fixed;
+}
+
+.bookings-table th:nth-child(1),
+.bookings-table td:nth-child(1) {
+  width: 20%;
+}
+
+.bookings-table th:nth-child(2),
+.bookings-table td:nth-child(2) {
+  width: 12%;
+}
+
+.bookings-table th:nth-child(3),
+.bookings-table td:nth-child(3) {
+  width: 14%;
+}
+
+.bookings-table th:nth-child(4),
+.bookings-table td:nth-child(4) {
+  width: 11%;
+}
+
+.bookings-table th:nth-child(5),
+.bookings-table td:nth-child(5) {
+  width: 10%;
+}
+
+.bookings-table th:nth-child(6),
+.bookings-table td:nth-child(6) {
+  width: 11%;
+}
+
+.bookings-table th:nth-child(7),
+.bookings-table td:nth-child(7) {
+  width: 12%;
+}
+
+.bookings-table th:nth-child(8),
+.bookings-table td:nth-child(8) {
+  width: 10%;
 }
 
 .bookings-table thead {
@@ -257,6 +298,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   white-space: nowrap;
+  vertical-align: middle;
 }
 
 .bookings-table tbody tr {
@@ -277,6 +319,7 @@
   vertical-align: middle;
   color: #1a1a1a;
   font-weight: 500;
+  text-align: left;
 }
 
 .service-cell {
@@ -336,7 +379,7 @@
 .status-badge {
   display: inline-block;
   padding: 0.5rem 0.875rem;
-  border-radius: 12px;
+  border-radius: 20px;
   color: white;
   font-size: 0.75rem;
   font-weight: 600;
@@ -344,6 +387,15 @@
   letter-spacing: 0.05em;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   white-space: nowrap;
+  text-align: center;
+}
+
+.bookings-table td:nth-child(6) {
+  text-align: center;
+}
+
+.bookings-table th:nth-child(6) {
+  text-align: center;
 }
 
 .payment-badge {
@@ -358,6 +410,10 @@
 }
 
 .actions-cell {
+  text-align: center;
+}
+
+.bookings-table th:last-child {
   text-align: center;
 }
 
