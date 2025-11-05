@@ -35,7 +35,6 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ title, showUserInfo = false }
         {showUserInfo && admin && (
           <div className="admin-user-info">
             <span className="admin-name">{admin.full_name}</span>
-            <span className="admin-role-badge">{admin.role}</span>
           </div>
         )}
       </div>

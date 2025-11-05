@@ -25,7 +25,7 @@ const ProviderProfile: React.FC = () => {
     business_permit?: File;
     image_logo?: File;
   }>({});
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [services, setServices] = useState<any[]>([]);
   const [servicesLoading, setServicesLoading] = useState(false);
@@ -157,11 +157,6 @@ const ProviderProfile: React.FC = () => {
   };
 
   const handleDeleteAccount = async () => {
-    if (!showDeleteConfirm) {
-      setShowDeleteConfirm(true);
-      return;
-    }
-
     try {
       setDeleteLoading(true);
       await providerProfileService.deleteProviderAccount();
@@ -172,9 +167,9 @@ const ProviderProfile: React.FC = () => {
       navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete account');
+      setShowDeleteModal(false);
     } finally {
       setDeleteLoading(false);
-      setShowDeleteConfirm(false);
     }
   };
 
@@ -412,11 +407,6 @@ const ProviderProfile: React.FC = () => {
                     <label>Email</label>
                     <div className="form-value">{profile.email}</div>
                   </div>
-
-                  <div className="form-group">
-                    <label>Contact Number</label>
-                    <div className="form-value">{profile.contact_number}</div>
-                  </div>
                 </div>
               </div>
             )}
@@ -591,37 +581,16 @@ const ProviderProfile: React.FC = () => {
                 <h3>Account Settings</h3>
                 <div className="danger-zone">
                   <h4>Delete Account</h4>
-                  <p>This action cannot be undone. This will permanently delete your provider account and all associated data including services, bookings, and uploaded documents.</p>
+                  <p className="danger-warning">
+                    ⚠️ <strong>Warning:</strong> This action cannot be undone. This will permanently delete your provider account and all associated data including services, bookings, and uploaded documents.
+                  </p>
 
-                  {!showDeleteConfirm ? (
-                    <button
-                      onClick={handleDeleteAccount}
-                      className="btn btn-danger"
-                    >
-                      Delete Account
-                    </button>
-                  ) : (
-                    <div className="delete-confirm">
-                      <p><strong>Are you absolutely sure?</strong></p>
-                      <p>This will permanently delete your account and all data. This action cannot be undone.</p>
-                      <div className="confirm-actions">
-                        <button
-                          onClick={handleDeleteAccount}
-                          disabled={deleteLoading}
-                          className="btn btn-danger"
-                        >
-                          {deleteLoading ? 'Deleting...' : 'Yes, Delete My Account'}
-                        </button>
-                        <button
-                          onClick={() => setShowDeleteConfirm(false)}
-                          disabled={deleteLoading}
-                          className="btn btn-secondary"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  <button
+                    onClick={() => setShowDeleteModal(true)}
+                    className="btn btn-danger"
+                  >
+                    Delete Account
+                  </button>
                 </div>
               </div>
             )}
@@ -726,6 +695,42 @@ const ProviderProfile: React.FC = () => {
                 onClick={handleCloseServiceDetails}
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Confirm Account Deletion</h3>
+            <p>
+              Are you absolutely sure you want to delete your provider account? This action cannot be undone and will:
+            </p>
+            <ul>
+              <li>Permanently delete all your business information</li>
+              <li>Remove all your services and service photos</li>
+              <li>Cancel all active bookings</li>
+              <li>Delete all uploaded documents (BIR ID, business permit, etc.)</li>
+              <li>Remove your account history and data</li>
+            </ul>
+
+            <div className="modal-actions">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleteLoading}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleteLoading}
+                className="btn btn-danger"
+              >
+                {deleteLoading ? 'Deleting...' : 'Yes, Delete My Account'}
               </button>
             </div>
           </div>

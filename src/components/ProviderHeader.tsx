@@ -8,11 +8,22 @@ const ProviderHeader: React.FC = () => {
   const provider = authService.getStoredUser();
   const userType = authService.getStoredUserType();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+    setDropdownOpen(false);
+  };
+
+  const confirmLogout = () => {
     authService.logout();
+    setShowLogoutModal(false);
     window.dispatchEvent(new Event('authChange'));
     navigate('/login');
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutModal(false);
   };
 
   const getProviderDisplayName = () => {
@@ -36,6 +47,7 @@ const ProviderHeader: React.FC = () => {
   }, []);
 
   return (
+    <>
     <header className="header">
       <div className="header-container">
         <Link to="/provider-homepage" className="header-logo">
@@ -121,7 +133,7 @@ const ProviderHeader: React.FC = () => {
                 </Link>
                 <div className="dropdown-divider"></div>
                 <button
-                  onClick={handleLogout}
+                  onClick={handleLogoutClick}
                   className="dropdown-item logout-item"
                 >
                   <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -141,6 +153,29 @@ const ProviderHeader: React.FC = () => {
         </nav>
       </div>
     </header>
+
+    {/* Logout Confirmation Modal */}
+    {showLogoutModal && (
+      <div className="modal-overlay" onClick={cancelLogout}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Confirm Logout</h3>
+          </div>
+          <div className="modal-body">
+            <p>Are you sure you want to logout?</p>
+          </div>
+          <div className="modal-footer">
+            <button className="btn btn-secondary" onClick={cancelLogout}>
+              No
+            </button>
+            <button className="btn btn-primary" onClick={confirmLogout}>
+              Yes
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 

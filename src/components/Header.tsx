@@ -10,6 +10,7 @@ const Header: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | Provider | null>(null);
   const [userType, setUserType] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     const checkAuthStatus = () => {
@@ -51,14 +52,24 @@ const Header: React.FC = () => {
     };
   }, []);
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+    setDropdownOpen(false);
+  };
+
+  const confirmLogout = () => {
     authService.logout();
     setIsAuthenticated(false);
     setCurrentUser(null);
     setUserType(null);
+    setShowLogoutModal(false);
     // Dispatch custom event for same-tab updates
     window.dispatchEvent(new Event('authChange'));
     navigate('/');
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutModal(false);
   };
 
   const handleLogin = () => {
@@ -78,6 +89,7 @@ const Header: React.FC = () => {
   };
 
   return (
+    <>
     <header className="header">
       <div className="header-container">
         <Link to="/" className="header-logo">
@@ -169,7 +181,7 @@ const Header: React.FC = () => {
                   </Link>
                   <div className="dropdown-divider"></div>
                   <button
-                    onClick={handleLogout}
+                    onClick={handleLogoutClick}
                     className="dropdown-item logout-item"
                   >
                     <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -205,6 +217,29 @@ const Header: React.FC = () => {
         </nav>
       </div>
     </header>
+
+    {/* Logout Confirmation Modal */}
+    {showLogoutModal && (
+      <div className="modal-overlay" onClick={cancelLogout}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Confirm Logout</h3>
+          </div>
+          <div className="modal-body">
+            <p>Are you sure you want to logout?</p>
+          </div>
+          <div className="modal-footer">
+            <button className="btn btn-secondary" onClick={cancelLogout}>
+              No
+            </button>
+            <button className="btn btn-primary" onClick={confirmLogout}>
+              Yes
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 

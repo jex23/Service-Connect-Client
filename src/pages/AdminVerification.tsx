@@ -88,10 +88,9 @@ const AdminVerification: React.FC = () => {
   };
 
   const handleRejectUser = async (userId: number) => {
-    const reason = prompt('Please provide a reason for rejection (optional):');
     setProcessing(true);
     try {
-      await adminVerificationService.rejectUser(userId, reason || undefined);
+      await adminVerificationService.rejectUser(userId);
       // Remove the rejected user from the list
       setUsers(users.filter(u => u.id !== userId));
       setSelectedUser(null);
@@ -141,10 +140,9 @@ const AdminVerification: React.FC = () => {
   };
 
   const handleRejectProvider = async (providerId: number) => {
-    const reason = prompt('Please provide a reason for rejection (optional):');
     setProcessing(true);
     try {
-      await adminVerificationService.rejectProvider(providerId, reason || undefined);
+      await adminVerificationService.rejectProvider(providerId);
       // Remove the rejected provider from the list
       setProviders(providers.filter(p => p.id !== providerId));
       setSelectedProvider(null);

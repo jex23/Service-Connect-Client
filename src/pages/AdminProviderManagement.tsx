@@ -17,7 +17,11 @@ const AdminProviderManagement: React.FC = () => {
   const [adminRole, setAdminRole] = useState<string>('');
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
-  const [newStatus, setNewStatus] = useState<'active' | 'inactive' | 'suspended'>('active');
+  const [newStatus, setNewStatus] = useState<'active' | 'inactive'>('active');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
     // Get admin role
@@ -78,14 +82,29 @@ const AdminProviderManagement: React.FC = () => {
     setNewStatus('active');
   };
 
+  const handleOpenConfirmModal = () => {
+    // Check permissions
+    if (adminRole === 'moderator') {
+      setErrorMessage('Moderators cannot update provider status');
+      setShowErrorModal(true);
+      return;
+    }
+
+    if (!selectedProvider || newStatus === selectedProvider.status) {
+      return;
+    }
+
+    setShowConfirmModal(true);
+  };
+
+  const handleCloseConfirmModal = () => {
+    setShowConfirmModal(false);
+  };
+
   const handleStatusUpdate = async () => {
     if (!selectedProvider) return;
 
-    // Check permissions
-    if (adminRole === 'moderator') {
-      alert('Moderators cannot update provider status');
-      return;
-    }
+    setShowConfirmModal(false);
 
     try {
       setUpdatingStatus(selectedProvider.id);
@@ -94,10 +113,11 @@ const AdminProviderManagement: React.FC = () => {
       // Refresh providers list
       await fetchProviders();
 
-      alert(`Provider status updated to ${newStatus}`);
+      setShowSuccessModal(true);
       handleCloseStatusModal();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to update provider status');
+      setErrorMessage(err instanceof Error ? err.message : 'Failed to update provider status');
+      setShowErrorModal(true);
       console.error('Error updating provider status:', err);
     } finally {
       setUpdatingStatus(null);
@@ -109,7 +129,6 @@ const AdminProviderManagement: React.FC = () => {
       total: providers.length,
       active: providers.filter(p => p.status === 'active').length,
       inactive: providers.filter(p => p.status === 'inactive').length,
-      suspended: providers.filter(p => p.status === 'suspended').length,
     };
   };
 
@@ -206,20 +225,6 @@ const AdminProviderManagement: React.FC = () => {
                 <p className="stat-label-small">Inactive</p>
               </div>
             </div>
-
-            <div className="stat-card-small">
-              <div className="stat-icon-small suspended">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-              </div>
-              <div className="stat-content-small">
-                <p className="stat-value-small">{stats.suspended}</p>
-                <p className="stat-label-small">Suspended</p>
-              </div>
-            </div>
           </div>
 
           {/* Filters */}
@@ -234,7 +239,6 @@ const AdminProviderManagement: React.FC = () => {
                 <option value="all">All Statuses</option>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
-                <option value="suspended">Suspended</option>
               </select>
             </div>
 
@@ -354,14 +358,11 @@ const AdminProviderManagement: React.FC = () => {
                   <select
                     id="status"
                     value={newStatus}
-                    onChange={(e) => setNewStatus(e.target.value as 'active' | 'inactive' | 'suspended')}
+                    onChange={(e) => setNewStatus(e.target.value as 'active' | 'inactive')}
                     className="status-select"
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
-                    {(adminRole === 'admin' || adminRole === 'superadmin') && (
-                      <option value="suspended">Suspended</option>
-                    )}
                   </select>
                 </div>
 
@@ -380,17 +381,6 @@ const AdminProviderManagement: React.FC = () => {
                     Moderators cannot update provider status
                   </div>
                 )}
-
-                {(adminRole === 'admin' || adminRole === 'superadmin') && newStatus === 'suspended' && (
-                  <div className="alert alert-warning">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <line x1="12" y1="8" x2="12" y2="12"></line>
-                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                    Warning: Suspending a provider will restrict their access
-                  </div>
-                )}
               </div>
 
               <div className="modal-footer">
@@ -405,10 +395,93 @@ const AdminProviderManagement: React.FC = () => {
                 <button
                   type="button"
                   className="btn btn-primary"
-                  onClick={handleStatusUpdate}
+                  onClick={handleOpenConfirmModal}
                   disabled={updatingStatus === selectedProvider.id || newStatus === selectedProvider.status}
                 >
-                  {updatingStatus === selectedProvider.id ? 'Updating...' : 'Update Status'}
+                  Update Status
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Confirmation Modal */}
+        {showConfirmModal && selectedProvider && (
+          <div className="modal-overlay" onClick={handleCloseConfirmModal}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Confirm Status Update</h3>
+              </div>
+              <div className="modal-body">
+                <p>Are you sure you want to update <strong>{selectedProvider.business_name}</strong>'s status to <strong>{newStatus}</strong>?</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleCloseConfirmModal}
+                  disabled={updatingStatus === selectedProvider.id}
+                >
+                  No
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleStatusUpdate}
+                  disabled={updatingStatus === selectedProvider.id}
+                >
+                  {updatingStatus === selectedProvider.id ? 'Updating...' : 'Yes'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <div className="modal-overlay" onClick={() => setShowSuccessModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="success-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+              <h3>Status Updated Successfully!</h3>
+              <p>The provider status has been updated.</p>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => setShowSuccessModal(false)}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Error Modal */}
+        {showErrorModal && (
+          <div className="modal-overlay" onClick={() => setShowErrorModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="error-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <h3>Error</h3>
+              <p>{errorMessage}</p>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => setShowErrorModal(false)}
+                >
+                  OK
                 </button>
               </div>
             </div>

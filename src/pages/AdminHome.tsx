@@ -44,10 +44,6 @@ const AdminHome: React.FC = () => {
     }
   };
 
-  const navigateToUsers = () => {
-    navigate('/admin-users');
-  };
-
   const navigateToUserManagement = () => {
     navigate('/admin-user-management');
   };
@@ -56,20 +52,8 @@ const AdminHome: React.FC = () => {
     navigate('/admin-provider-management');
   };
 
-  const navigateToServiceManagement = () => {
-    navigate('/admin-service-management');
-  };
-
-  const navigateToBookingManagement = () => {
-    navigate('/admin-booking-management');
-  };
-
   const navigateToCustomerReports = () => {
     navigate('/admin-customer-reports');
-  };
-
-  const navigateToSaleManagement = () => {
-    navigate('/admin-sale-management');
   };
 
   if (loading) {
@@ -159,88 +143,12 @@ const AdminHome: React.FC = () => {
               )}
             </div>
           </div>
-
-          <div className="stat-card">
-            <div className="stat-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-              </svg>
-            </div>
-            <div className="stat-content">
-              <h3>Services</h3>
-              <p className="stat-value">{dashboardSummary?.services.total_services ?? '-'}</p>
-              <span className="stat-label">Total Services</span>
-              {dashboardSummary && (
-                <div className="stat-breakdown">
-                  <small>Active: {dashboardSummary.services.active_services}</small>
-                  <small>Inactive: {dashboardSummary.services.inactive_services}</small>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-            </div>
-            <div className="stat-content">
-              <h3>Bookings</h3>
-              <p className="stat-value">{dashboardSummary?.bookings.total_bookings ?? '-'}</p>
-              <span className="stat-label">Total Bookings</span>
-              {dashboardSummary && (
-                <div className="stat-breakdown">
-                  <small>Confirmed: {dashboardSummary.bookings.confirmed_bookings}</small>
-                  <small>Pending: {dashboardSummary.bookings.pending_bookings}</small>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="12" y1="1" x2="12" y2="23"></line>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-              </svg>
-            </div>
-            <div className="stat-content">
-              <h3>Sales</h3>
-              <p className="stat-value">
-                {dashboardSummary ? `₱${dashboardSummary.sales.total_sales.toLocaleString()}` : '-'}
-              </p>
-              <span className="stat-label">Total Revenue</span>
-              {dashboardSummary && (
-                <div className="stat-breakdown">
-                  <small>Paid Bookings: {dashboardSummary.sales.total_paid_bookings}</small>
-                  <small>Pending: {dashboardSummary.sales.pending_payments}</small>
-                </div>
-              )}
-            </div>
-          </div>
         </section>
 
         {/* Quick Actions */}
         <section className="actions-section">
           <h3>Quick Actions</h3>
           <div className="action-cards">
-            <div className="action-card" onClick={navigateToUsers}>
-              <div className="action-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"></path>
-                  <path d="M12 8v4"></path>
-                  <path d="M12 16h.01"></path>
-                </svg>
-              </div>
-              <h4>Manage Admins</h4>
-              <p>View and manage admin accounts</p>
-            </div>
-
             <div className="action-card" onClick={navigateToUserManagement}>
               <div className="action-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -265,30 +173,6 @@ const AdminHome: React.FC = () => {
               <p>Manage service providers</p>
             </div>
 
-            <div className="action-card" onClick={navigateToServiceManagement}>
-              <div className="action-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                </svg>
-              </div>
-              <h4>Service Management</h4>
-              <p>Manage services and categories</p>
-            </div>
-
-            <div className="action-card" onClick={navigateToBookingManagement}>
-              <div className="action-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                  <line x1="8" y1="2" x2="8" y2="6"></line>
-                  <line x1="3" y1="10" x2="21" y2="10"></line>
-                </svg>
-              </div>
-              <h4>Booking Management</h4>
-              <p>View and manage all bookings</p>
-            </div>
-
             <div className="action-card" onClick={navigateToCustomerReports}>
               <div className="action-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -298,17 +182,6 @@ const AdminHome: React.FC = () => {
               </div>
               <h4>Customer Reports</h4>
               <p>View customer reports and analytics</p>
-            </div>
-
-            <div className="action-card" onClick={navigateToSaleManagement}>
-              <div className="action-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="12" y1="1" x2="12" y2="23"></line>
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                </svg>
-              </div>
-              <h4>Sales Management</h4>
-              <p>View sales data and revenue reports</p>
             </div>
           </div>
         </section>

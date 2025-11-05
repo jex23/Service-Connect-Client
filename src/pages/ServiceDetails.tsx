@@ -210,6 +210,7 @@ const ServiceDetails: React.FC = () => {
   // Generate calendar grid for selected month
   const generateCalendarGrid = () => {
     const now = new Date();
+    now.setHours(0, 0, 0, 0); // Set to start of today for accurate comparison
     const year = currentCalendarMonth.getFullYear();
     const month = currentCalendarMonth.getMonth();
 
@@ -230,12 +231,14 @@ const ServiceDetails: React.FC = () => {
         const dateStr = `${year}-${month_num}-${day_num}`;
         const dayBookings = calendarData.find(d => d.date === dateStr)?.bookings || [];
         const dateObj = new Date(current);
+        dateObj.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
 
         weekDays.push({
           date: new Date(current),
           dateStr,
           isCurrentMonth: current.getMonth() === month,
           isToday: current.toDateString() === now.toDateString(),
+          isPastDate: dateObj < now, // Check if date is in the past
           bookings: dayBookings,
           isAvailable: isDateAvailable(dateObj)
         });
@@ -251,9 +254,9 @@ const ServiceDetails: React.FC = () => {
   };
 
   // Handle calendar day click
-  const handleCalendarDayClick = async (dateStr: string, isCurrentMonth: boolean) => {
-    if (!isCurrentMonth || !service) return; // Don't allow clicking on other month dates
-    
+  const handleCalendarDayClick = async (dateStr: string, isCurrentMonth: boolean, isPastDate: boolean) => {
+    if (!isCurrentMonth || !service || isPastDate) return; // Don't allow clicking on other month dates or past dates
+
     setSelectedCalendarDate(dateStr);
     setScheduleLoading(true);
     
@@ -816,9 +819,12 @@ const ServiceDetails: React.FC = () => {
                                   } ${day.isToday ? 'today' : ''} ${
                                     day.bookings.length > 0 ? 'has-bookings' : ''
                                   } ${selectedCalendarDate === day.dateStr ? 'selected' : ''} ${
-                                    day.isCurrentMonth ? 'clickable' : ''
-                                  } ${day.isAvailable && day.isCurrentMonth ? 'available-day' : ''}`}
-                                  onClick={() => handleCalendarDayClick(day.dateStr, day.isCurrentMonth)}
+                                    day.isCurrentMonth && !day.isPastDate ? 'clickable' : ''
+                                  } ${day.isAvailable && day.isCurrentMonth && !day.isPastDate ? 'available-day' : ''} ${
+                                    day.isPastDate ? 'past-date' : ''
+                                  }`}
+                                  onClick={() => handleCalendarDayClick(day.dateStr, day.isCurrentMonth, day.isPastDate)}
+                                  style={{ cursor: day.isPastDate || !day.isCurrentMonth ? 'not-allowed' : 'pointer' }}
                                 >
                                   <div className="day-number">{day.date.getDate()}</div>
                                   {day.bookings.length > 0 && (

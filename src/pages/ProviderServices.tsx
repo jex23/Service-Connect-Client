@@ -26,6 +26,8 @@ const ProviderServices: React.FC = () => {
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [selectedPhotos, setSelectedPhotos] = useState<File[]>([]);
   const [schedules, setSchedules] = useState<ProviderServiceScheduleItem[]>([]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     fetchServices();
@@ -86,7 +88,14 @@ const ProviderServices: React.FC = () => {
     }
   };
 
-  const handleCreateService = async () => {
+  const handleCreateServiceClick = () => {
+    // Show confirmation modal instead of creating directly
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmCreate = async () => {
+    setShowConfirmModal(false);
+
     try {
       setSaving(true);
 
@@ -125,7 +134,21 @@ const ProviderServices: React.FC = () => {
 
       console.log('Service created successfully');
       await fetchServices();
-      handleCancelCreate();
+      setShowAddModal(false);
+      setShowSuccessModal(true);
+
+      // Reset form data
+      setSelectedPhotos([]);
+      setSchedules([]);
+      setFormData({
+        service_title: '',
+        service_description: '',
+        price_decimal: '',
+        duration_minutes: '',
+        is_active: true,
+        category_id: ''
+      });
+
       console.log('=== CREATE SERVICE DEBUG END ===');
     } catch (err) {
       console.error('=== CREATE SERVICE ERROR ===', err);
@@ -133,6 +156,10 @@ const ProviderServices: React.FC = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleCancelConfirm = () => {
+    setShowConfirmModal(false);
   };
 
   const handleCancelCreate = () => {
@@ -663,10 +690,62 @@ const ProviderServices: React.FC = () => {
                   </button>
                   <button
                     className="btn btn-primary"
-                    onClick={handleCreateService}
+                    onClick={handleCreateServiceClick}
                     disabled={saving || !formData.service_title.trim() || !formData.category_id}
                   >
-                    {saving ? 'Creating...' : 'Create Service'}
+                    Create Service
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Confirmation Modal */}
+          {showConfirmModal && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h3>Confirm Service Creation</h3>
+                <p>Are you sure you want to create this service?</p>
+
+                <div className="modal-actions">
+                  <button
+                    onClick={handleCancelConfirm}
+                    disabled={saving}
+                    className="btn btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleConfirmCreate}
+                    disabled={saving}
+                    className="btn btn-primary"
+                  >
+                    {saving ? 'Creating...' : 'Confirm'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Success Modal */}
+          {showSuccessModal && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <div className="success-icon">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                </div>
+                <h3>Service Created Successfully!</h3>
+                <p>Your service has been created and is now available.</p>
+
+                <div className="modal-actions">
+                  <button
+                    onClick={() => setShowSuccessModal(false)}
+                    className="btn btn-primary"
+                  >
+                    OK
                   </button>
                 </div>
               </div>

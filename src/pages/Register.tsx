@@ -68,7 +68,7 @@ const Register: React.FC = () => {
       }
     };
 
-    if ((userType === 'customer' && showForm) || (userType === 'provider' && (providerStep === 2 || providerStep === 3))) {
+    if (userType === 'provider' && (providerStep === 2 || providerStep === 3)) {
       fetchServiceCategories();
     }
   }, [userType, showForm, providerStep]);
@@ -161,30 +161,6 @@ const Register: React.FC = () => {
           console.error('❌ [Register] registerUser threw error:', registerError);
           console.log('=== CUSTOMER REGISTRATION DEBUG END (ERROR) ===');
           throw registerError;
-        }
-
-        // Register services for selected categories
-        if (selectedCategories.length > 0 && 'user' in response) {
-          console.log('🔧 [Register] Registering user services for categories:', selectedCategories);
-          console.log('🔧 [Register] User ID:', response.user.id);
-          try {
-            for (const categoryId of selectedCategories) {
-              console.log(`  ➕ Registering service for category ${categoryId}...`);
-              await userService.registerUserService({
-                user_id: response.user.id,
-                category_id: categoryId,
-                service_title: `${name}'s Service`, // Default service title
-                is_active: true
-              });
-              console.log(`  ✅ Service registered for category ${categoryId}`);
-            }
-            console.log('✅ [Register] All services registered successfully');
-          } catch (serviceError) {
-            console.warn('⚠️ [Register] Failed to register some services:', serviceError);
-            // Don't block registration if service registration fails
-          }
-        } else {
-          console.log('ℹ️ [Register] No services to register (selectedCategories.length:', selectedCategories.length, ')');
         }
 
         console.log('✅ [Register] Customer registration completed successfully');
@@ -1029,23 +1005,6 @@ const Register: React.FC = () => {
                       onChange={(e) => setIdBack(e.target.files?.[0] || null)}
                       placeholder="Upload ID back image"
                     />
-                  </div>
-                  <div>
-                    <label>Service Categories (Optional):</label>
-                    <p className="category-help-text">Select the services you can provide</p>
-                    <div className="categories-grid">
-                      {serviceCategories.map((category) => (
-                        <label key={category.id} className="category-checkbox">
-                          <input
-                            type="checkbox"
-                            checked={selectedCategories.includes(category.id)}
-                            onChange={() => handleCategoryToggle(category.id)}
-                          />
-                          <span className="checkmark"></span>
-                          {category.category_name}
-                        </label>
-                      ))}
-                    </div>
                   </div>
                 </>
               ) : (

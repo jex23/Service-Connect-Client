@@ -1,6 +1,8 @@
 import { API_CONFIG } from '../constants/api';
 import type { User } from '../types/user';
 import type { Provider } from '../types/provider';
+import { adminUserService } from './adminUserService';
+import { adminProviderService } from './adminProviderService';
 
 class AdminVerificationService {
   private baseUrl = API_CONFIG.BASE_URL;
@@ -176,31 +178,14 @@ class AdminVerificationService {
     }
   }
 
-  // Reject user verification
-  async rejectUser(userId: number, reason?: string): Promise<{ message: string; user: User }> {
+  // Reject user verification by setting status to inactive
+  async rejectUser(userId: number): Promise<{ message: string; user: User }> {
     try {
-      const response = await fetch(`${this.baseUrl}${this.adminEndpoint}/users/${userId}/reject`, {
-        method: 'POST',
-        headers: this.getAuthHeaders(),
-        body: JSON.stringify({ reason }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-
-        if (response.status === 401) {
-          throw new Error('Unauthorized. Please login again.');
-        } else if (response.status === 403) {
-          throw new Error('Admin access required');
-        } else if (response.status === 404) {
-          throw new Error('User not found');
-        }
-
-        throw new Error(errorData.error || `Failed to reject user: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
+      const result = await adminUserService.updateUserStatus(userId, 'inactive');
+      return {
+        message: 'User rejected successfully',
+        user: result.user
+      };
     } catch (error) {
       if (error instanceof Error) {
         throw error;
@@ -241,31 +226,14 @@ class AdminVerificationService {
     }
   }
 
-  // Reject provider verification
-  async rejectProvider(providerId: number, reason?: string): Promise<{ message: string; provider: Provider }> {
+  // Reject provider verification by setting status to inactive
+  async rejectProvider(providerId: number): Promise<{ message: string; provider: Provider }> {
     try {
-      const response = await fetch(`${this.baseUrl}${this.adminEndpoint}/providers/${providerId}/reject`, {
-        method: 'POST',
-        headers: this.getAuthHeaders(),
-        body: JSON.stringify({ reason }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-
-        if (response.status === 401) {
-          throw new Error('Unauthorized. Please login again.');
-        } else if (response.status === 403) {
-          throw new Error('Admin access required');
-        } else if (response.status === 404) {
-          throw new Error('Provider not found');
-        }
-
-        throw new Error(errorData.error || `Failed to reject provider: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
+      const result = await adminProviderService.updateProviderStatus(providerId, 'inactive');
+      return {
+        message: 'Provider rejected successfully',
+        provider: result.provider
+      };
     } catch (error) {
       if (error instanceof Error) {
         throw error;
