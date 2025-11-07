@@ -325,9 +325,6 @@ const AdminUserManagement: React.FC = () => {
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
-                    {(adminRole === 'admin' || adminRole === 'superadmin') && (
-                      <option value="suspended">Suspended</option>
-                    )}
                   </select>
                 </div>
 
@@ -344,17 +341,6 @@ const AdminUserManagement: React.FC = () => {
                       <line x1="12" y1="16" x2="12.01" y2="16"></line>
                     </svg>
                     Moderators cannot update user status
-                  </div>
-                )}
-
-                {(adminRole === 'admin' || adminRole === 'superadmin') && newStatus === 'suspended' && (
-                  <div className="alert alert-warning">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <line x1="12" y1="8" x2="12" y2="12"></line>
-                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                    Warning: Suspending a user will restrict their access
                   </div>
                 )}
               </div>

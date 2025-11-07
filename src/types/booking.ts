@@ -198,10 +198,18 @@ export interface ExistingBooking {
   };
 }
 
+export interface BookingTimeSlot {
+  time?: string;
+  start_time?: string;
+  end_time?: string;
+  is_available?: boolean;
+  booking_id?: number;
+}
+
 export interface BookingScheduleCheckResponse {
   provider_service: ProviderServiceInfo;
   schedule?: ScheduleInfo;
-  available_slots: string[];
+  available_slots: (string | BookingTimeSlot)[];
   existing_bookings: ExistingBooking[];
 }
 

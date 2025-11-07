@@ -67,6 +67,11 @@ const ServiceDetails: React.FC = () => {
   // Month navigation state
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(new Date());
 
+  // Booking result modal state
+  const [showBookingResultModal, setShowBookingResultModal] = useState(false);
+  const [bookingResultType, setBookingResultType] = useState<'success' | 'error'>('success');
+  const [bookingResultMessage, setBookingResultMessage] = useState('');
+
   // Report state
   const [showReportModal, setShowReportModal] = useState(false);
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
@@ -344,8 +349,16 @@ const ServiceDetails: React.FC = () => {
   };
 
   const handleBookingSubmit = async () => {
+    // Prevent duplicate submissions
+    if (bookingLoading) {
+      console.log('Booking already in progress, ignoring duplicate submission');
+      return;
+    }
+
     if (!service || !user || !selectedDate || !selectedDay || !selectedTime) {
-      alert('Please select a date, day and time');
+      setBookingResultType('error');
+      setBookingResultMessage('Please select a date, day and time');
+      setShowBookingResultModal(true);
       return;
     }
 
@@ -369,19 +382,34 @@ const ServiceDetails: React.FC = () => {
         booking_id: response.booking.id,
         status: 'Pending' as const
       };
-      
+
       console.log('Creating payment status:', paymentData);
       await bookingService.createPaymentStatus(paymentData);
       console.log('Payment status created successfully');
 
-      alert('Booking created successfully! The provider will contact you soon.');
+      // Show success modal
+      setBookingResultType('success');
+      setBookingResultMessage('Booking created successfully! The provider will contact you soon.');
+      setShowBookingResultModal(true);
+
+      // Close booking modal and reset form
       setShowBookingModal(false);
       setSelectedDate('');
       setSelectedDay('');
       setSelectedTime('');
+      setSelectedCalendarDate(null);
+      setScheduleData(null);
+
+      // Refresh calendar data to show the new booking
+      if (service.provider?.id) {
+        await fetchCalendarData(service.provider.id);
+      }
     } catch (error) {
       console.error('Booking failed:', error);
-      alert(error instanceof Error ? error.message : 'Booking failed. Please try again.');
+      // Show error modal
+      setBookingResultType('error');
+      setBookingResultMessage(error instanceof Error ? error.message : 'Booking failed. Please try again.');
+      setShowBookingResultModal(true);
     } finally {
       setBookingLoading(false);
     }
@@ -723,65 +751,27 @@ const ServiceDetails: React.FC = () => {
               </div>
 
               <div className="booking-form">
-                <div className="form-group">
-                  <label htmlFor="bookingDate">Select Date:</label>
-                  <input
-                    type="date"
-                    id="bookingDate"
-                    value={selectedDate}
-                    min={new Date().toISOString().split('T')[0]} // Today or later
-                    onChange={(e) => {
-                      setSelectedDate(e.target.value);
-                      // Auto-set the day based on selected date
-                      if (e.target.value) {
-                        const date = new Date(e.target.value);
-                        const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-                        setSelectedDay(dayName);
-                      } else {
-                        setSelectedDay('');
-                      }
-                      setSelectedTime(''); // Reset time when date changes
-                    }}
-                    required
-                  />
-                </div>
-
-                {selectedDate && (
-                  <div className="form-group">
-                    <label htmlFor="bookingDay">Day of Week:</label>
-                    <input
-                      type="text"
-                      id="bookingDay"
-                      value={selectedDay}
-                      readOnly
-                      className="readonly-input"
-                    />
-                  </div>
-                )}
-
-                {selectedDay && (
-                  <div className="form-group">
-                    <label htmlFor="bookingTime">Select Time:</label>
-                    <select
-                      id="bookingTime"
-                      value={selectedTime}
-                      onChange={(e) => setSelectedTime(e.target.value)}
-                      required
-                    >
-                      <option value="">Choose a time</option>
-                      {getAvailableTimeSlots(selectedDay).map((timeSlot) => (
-                        <option key={timeSlot} value={timeSlot}>
-                          {timeSlot}
-                        </option>
-                      ))}
-                    </select>
+                {selectedDate && selectedDay && selectedTime && (
+                  <div className="booking-summary-box">
+                    <h4>Selected Booking</h4>
+                    <div className="booking-summary-details">
+                      <div className="summary-row">
+                        <span className="summary-label">Date:</span>
+                        <span className="summary-value">{new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                      </div>
+                      <div className="summary-row">
+                        <span className="summary-label">Time:</span>
+                        <span className="summary-value">{selectedTime}</span>
+                      </div>
+                    </div>
                   </div>
                 )}
 
                 {/* Booking Calendar */}
                 <div className="booking-calendar-section">
                   <div className="calendar-header">
-                    <h4>Booking Calendar</h4>
+                    <h4>Select Date & Time</h4>
+                    <p className="calendar-instruction">Click on a date in the calendar, then select an available time slot below.</p>
                   </div>
 
                   {calendarLoading ? (
@@ -863,17 +853,33 @@ const ServiceDetails: React.FC = () => {
                                   Available: {scheduleData.schedule.start_time} - {scheduleData.schedule.end_time}
                                 </p>
                                 <div className="time-slots-grid">
-                                  {scheduleData.available_slots.map((timeSlot) => {
+                                  {scheduleData.available_slots.map((timeSlot, index) => {
+                                    // Handle both string and object formats
+                                    let timeString: string;
+
+                                    if (typeof timeSlot === 'string') {
+                                      timeString = timeSlot;
+                                    } else if (typeof timeSlot === 'object' && timeSlot !== null) {
+                                      // Handle object format with time and is_available properties
+                                      timeString = (timeSlot as any).time || (timeSlot as any).start_time || String(timeSlot);
+                                    } else {
+                                      timeString = String(timeSlot);
+                                    }
+
+                                    // A slot is booked ONLY if it exists in existing_bookings
                                     const isBooked = scheduleData.existing_bookings.some(
-                                      booking => booking.booking_time === timeSlot
+                                      booking => booking.booking_time === timeString
                                     );
+
+                                    const isSelected = selectedTime === timeString && selectedDate === selectedCalendarDate;
+
                                     return (
                                       <div
-                                        key={timeSlot}
-                                        className={`time-slot ${isBooked ? 'booked' : 'available'}`}
+                                        key={`${timeString}-${index}`}
+                                        className={`time-slot ${isBooked ? 'booked' : 'available'} ${isSelected ? 'selected' : ''}`}
                                         onClick={() => {
                                           if (!isBooked) {
-                                            setSelectedTime(timeSlot);
+                                            setSelectedTime(timeString);
                                             setSelectedDate(selectedCalendarDate);
                                             // Parse date string parts to avoid timezone issues
                                             const [year, month, day] = selectedCalendarDate.split('-').map(Number);
@@ -883,9 +889,9 @@ const ServiceDetails: React.FC = () => {
                                           }
                                         }}
                                       >
-                                        <span className="time-text">{timeSlot}</span>
-                                        <span className={`status-text ${isBooked ? 'booked' : 'available'}`}>
-                                          {isBooked ? 'Booked' : 'Available'}
+                                        <span className="time-text">{timeString}</span>
+                                        <span className={`status-text ${isBooked ? 'booked' : isSelected ? 'selected' : 'available'}`}>
+                                          {isBooked ? 'Booked' : isSelected ? 'Selected' : 'Available'}
                                         </span>
                                       </div>
                                     );
@@ -1085,6 +1091,46 @@ const ServiceDetails: React.FC = () => {
                 </div>
               )}
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Booking Result Modal */}
+      {showBookingResultModal && (
+        <div className="modal-overlay" onClick={() => setShowBookingResultModal(false)}>
+          <div className="modal-content booking-result-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{bookingResultType === 'success' ? 'Booking Confirmed' : 'Booking Failed'}</h3>
+              <button className="modal-close" onClick={() => setShowBookingResultModal(false)}>×</button>
+            </div>
+
+            <div className="modal-body">
+              <div className={`result-message ${bookingResultType}`}>
+                {bookingResultType === 'success' ? (
+                  <svg className="result-icon success-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                ) : (
+                  <svg className="result-icon error-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
+                )}
+                <p className="result-text">{bookingResultMessage}</p>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className={`btn ${bookingResultType === 'success' ? 'btn-primary' : 'btn-secondary'}`}
+                onClick={() => setShowBookingResultModal(false)}
+              >
+                {bookingResultType === 'success' ? 'Done' : 'Close'}
+              </button>
+            </div>
           </div>
         </div>
       )}
