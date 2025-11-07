@@ -167,9 +167,16 @@ const Register: React.FC = () => {
         console.log('=== CUSTOMER REGISTRATION DEBUG END (SUCCESS) ===');
       } else if (userType === 'provider') {
         if (providerStep === 1) {
-          // Step 1: Basic provider registration
-          if (!name || !email || !address || !password) {
-            alert('Please fill in all required fields (Name, Email, Address, Password)');
+          // Step 1: Basic provider registration - Validate all required fields
+          if (!name || !email || !address || !password || !businessName || !about) {
+            alert('Please fill in all required fields (Name, Email, Address, Password, Business Name, About Your Business)');
+            setIsLoading(false);
+            return;
+          }
+
+          // Validate required files
+          if (!birIdFront || !birIdBack || !businessPermit || !imageLogo) {
+            alert('Please upload all required documents (BIR ID Front, BIR ID Back, Business Permit, Business Logo)');
             setIsLoading(false);
             return;
           }
@@ -180,16 +187,16 @@ const Register: React.FC = () => {
             email,
             address,
             password,
-            ...(businessName && { business_name: businessName }),
-            ...(about && { about: about })
+            business_name: businessName,
+            about: about
           };
-          
+
           // Prepare files for upload
           const files = {
-            ...(birIdFront && { birIdFront }),
-            ...(birIdBack && { birIdBack }),
-            ...(businessPermit && { businessPermit }),
-            ...(imageLogo && { imageLogo })
+            birIdFront,
+            birIdBack,
+            businessPermit,
+            imageLogo
           };
           
           response = await authService.registerProvider(providerData, files);
@@ -1010,63 +1017,69 @@ const Register: React.FC = () => {
               ) : (
                 <>
                   <div>
-                    <label htmlFor="businessName">Business Name (Optional):</label>
+                    <label htmlFor="businessName">Business Name:</label>
                     <input
                       type="text"
                       id="businessName"
                       value={businessName}
                       onChange={(e) => setBusinessName(e.target.value)}
                       placeholder="Enter your business name"
+                      required
                     />
                   </div>
                   <div>
-                    <label htmlFor="birIdFront">BIR ID Front Image (Optional):</label>
+                    <label htmlFor="birIdFront">BIR ID Front Image:</label>
                     <input
                       type="file"
                       id="birIdFront"
                       accept="image/*"
                       onChange={(e) => setBirIdFront(e.target.files?.[0] || null)}
                       placeholder="Upload BIR ID front image"
+                      required
                     />
                   </div>
                   <div>
-                    <label htmlFor="birIdBack">BIR ID Back Image (Optional):</label>
+                    <label htmlFor="birIdBack">BIR ID Back Image:</label>
                     <input
                       type="file"
                       id="birIdBack"
                       accept="image/*"
                       onChange={(e) => setBirIdBack(e.target.files?.[0] || null)}
                       placeholder="Upload BIR ID back image"
+                      required
                     />
                   </div>
                   <div>
-                    <label htmlFor="businessPermit">Business Permit Document (Optional):</label>
+                    <label htmlFor="businessPermit">Business Permit Document:</label>
                     <input
                       type="file"
                       id="businessPermit"
                       accept="image/*,.pdf"
                       onChange={(e) => setBusinessPermit(e.target.files?.[0] || null)}
                       placeholder="Upload business permit document"
+                      required
                     />
                   </div>
                   <div>
-                    <label htmlFor="imageLogo">Business Logo (Optional):</label>
+                    <label htmlFor="imageLogo">Business Logo:</label>
                     <input
                       type="file"
                       id="imageLogo"
                       accept="image/*"
                       onChange={(e) => setImageLogo(e.target.files?.[0] || null)}
                       placeholder="Upload business logo"
+                      required
                     />
                   </div>
                   <div>
-                    <label htmlFor="about">About Your Business (Optional):</label>
+                    <label htmlFor="about">About Your Business:</label>
                     <textarea
                       id="about"
                       value={about}
                       onChange={(e) => setAbout(e.target.value)}
                       placeholder="Tell us about your business and services"
                       rows={4}
+                      required
                     />
                   </div>
                 </>

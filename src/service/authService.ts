@@ -1,11 +1,15 @@
 import { API_CONFIG } from '../constants/api';
-import type { 
-  LoginRequest, 
-  UserRegisterRequest, 
+import type {
+  LoginRequest,
+  UserRegisterRequest,
   ProviderRegisterRequest,
   UserAuthResponse,
   ProviderAuthResponse,
-  AuthResponse 
+  AuthResponse,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse
 } from '../types/auth';
 
 class AuthService {
@@ -293,6 +297,76 @@ class AuthService {
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userType');
+  }
+
+  async forgotPassword(requestData: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+    try {
+      const response = await fetch(`${this.baseUrl}${API_CONFIG.ENDPOINTS.FORGOT_PASSWORD}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+
+        if (response.status === 404) {
+          throw new Error('No account found with this email address');
+        } else if (response.status === 400) {
+          throw new Error(errorData.error || 'Invalid email or account type');
+        } else if (response.status === 500) {
+          throw new Error('Failed to send OTP. Please try again later');
+        }
+
+        throw new Error(errorData.error || errorData.message || 'Failed to send password reset OTP');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Unable to connect to the server. Please check your internet connection.');
+    }
+  }
+
+  async resetPassword(requestData: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+    try {
+      const response = await fetch(`${this.baseUrl}${API_CONFIG.ENDPOINTS.RESET_PASSWORD}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+
+        if (response.status === 404) {
+          throw new Error('No account found with this email address');
+        } else if (response.status === 401) {
+          throw new Error(errorData.error || 'Invalid or expired OTP code');
+        } else if (response.status === 400) {
+          throw new Error(errorData.error || 'Invalid request. Please check all fields');
+        } else if (response.status === 500) {
+          throw new Error('Failed to reset password. Please try again later');
+        }
+
+        throw new Error(errorData.error || errorData.message || 'Failed to reset password');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Unable to connect to the server. Please check your internet connection.');
+    }
   }
 }
 

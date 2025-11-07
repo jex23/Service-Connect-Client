@@ -573,18 +573,48 @@ class ProviderServiceAPI {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
 
       console.log('Delete response status:', response.status);
+      console.log('Delete response content-type:', response.headers.get('content-type'));
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Failed to delete photo' }));
+        // Try to get response text first
+        const responseText = await response.text();
+        console.log('Error response text:', responseText);
+
+        let errorData;
+        try {
+          // Try to parse as JSON
+          errorData = JSON.parse(responseText);
+        } catch (e) {
+          // If not JSON, treat as plain text error
+          errorData = { error: responseText || 'Failed to delete photo' };
+        }
+
         console.error('Delete failed with error:', errorData);
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        throw new Error(errorData.error || errorData.message || `HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      // Try to parse response
+      const responseText = await response.text();
+      let data;
+
+      if (responseText) {
+        try {
+          data = JSON.parse(responseText);
+        } catch (e) {
+          // If response is not JSON, return success with message
+          console.log('Non-JSON success response:', responseText);
+          data = { message: 'Photo deleted successfully' };
+        }
+      } else {
+        // Empty response is OK for DELETE
+        data = { message: 'Photo deleted successfully' };
+      }
+
       console.log('Delete success response:', data);
       console.log('=== DELETE PHOTO COMPLETE ===');
       return data;

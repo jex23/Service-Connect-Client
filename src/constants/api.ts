@@ -15,6 +15,8 @@ export const API_CONFIG = {
     SERVICE_BOOKING: '/api/users/service-booking',
     PAYMENT_STATUS: '/api/users/payment-status',
     BOOKING_CALENDAR: '/api/users/booking-calendar',
-    BOOKING_SCHEDULE_CHECK: '/api/users/booking-schedule-check'
+    BOOKING_SCHEDULE_CHECK: '/api/users/booking-schedule-check',
+    FORGOT_PASSWORD: '/api/auth/forgot-password',
+    RESET_PASSWORD: '/api/auth/reset-password'
   }
 } as const;

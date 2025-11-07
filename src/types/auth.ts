@@ -70,3 +70,25 @@ export interface ApiError {
 }
 
 export type AuthResponse = UserAuthResponse | ProviderAuthResponse;
+
+// Password Reset Types
+export interface ForgotPasswordRequest {
+  email: string;
+  account_type: 'user' | 'provider';
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  account_type: 'user' | 'provider';
+  otp_code: string;
+  new_password: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}

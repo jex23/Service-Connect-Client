@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ProviderHeader from '../components/ProviderHeader';
 import ProviderSidebar from '../components/ProviderSidebar';
 import { providerProfileService } from '../service/providerProfileService';
 import { providerService } from '../service/providerService';
@@ -178,8 +177,6 @@ const ProviderProfile: React.FC = () => {
       <div className="provider-layout">
         <ProviderSidebar />
         <div className="main-content">
-          <ProviderHeader />
-
           {/* Full Page Loading Overlay */}
           <div className="loading-overlay">
             <div className="loading-content">
@@ -204,7 +201,6 @@ const ProviderProfile: React.FC = () => {
       <div className="provider-layout">
         <ProviderSidebar />
         <div className="main-content">
-          <ProviderHeader />
           <div className="provider-profile">
             <div className="error-state">
               <p>{error}</p>
@@ -223,7 +219,6 @@ const ProviderProfile: React.FC = () => {
       <div className="provider-layout">
         <ProviderSidebar />
         <div className="main-content">
-          <ProviderHeader />
           <div className="provider-profile">
             <div className="error-state">
               <p>Profile not found</p>
@@ -241,7 +236,6 @@ const ProviderProfile: React.FC = () => {
     <div className="provider-layout">
       <ProviderSidebar />
       <div className="main-content">
-        <ProviderHeader />
         <div className="provider-profile">
           <div className="profile-header">
             <div className="profile-page-info">

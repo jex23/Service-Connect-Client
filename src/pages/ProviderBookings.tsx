@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import ProviderHeader from '../components/ProviderHeader';
 import ProviderSidebar from '../components/ProviderSidebar';
 import { providerBookingService } from '../service/providerBookingService';
 import { authService } from '../service/authService';
@@ -142,8 +141,6 @@ const ProviderBookings: React.FC = () => {
       <div className="provider-layout">
         <ProviderSidebar />
         <div className="main-content">
-          <ProviderHeader />
-
           {/* Full Page Loading Overlay */}
           <div className="loading-overlay">
             <div className="loading-content">
@@ -167,7 +164,6 @@ const ProviderBookings: React.FC = () => {
     <div className="provider-layout">
       <ProviderSidebar />
       <div className="main-content">
-        <ProviderHeader />
         <div className="provider-bookings">
           <div className="bookings-header">
             <div className="header-left">

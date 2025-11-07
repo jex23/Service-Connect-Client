@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import ProviderHeader from '../components/ProviderHeader';
 import ProviderSidebar from '../components/ProviderSidebar';
 import '../components/ProviderLayout.css';
 import './ProviderHomepage.css';
@@ -24,8 +23,6 @@ const ProviderHomepage: React.FC = () => {
     <div className="provider-layout">
       <ProviderSidebar />
       <div className="main-content">
-        <ProviderHeader />
-
         <div className="provider-homepage">
           {/* Hero Section */}
           <section className="dashboard-hero">

@@ -71,7 +71,7 @@ const Home: React.FC = () => {
               business_name: service.provider.business_name,
               full_name: service.provider.full_name,
               email: service.provider.email || '',
-              contact_number: null,
+              contact_number: undefined,
               address: service.provider.address,
               bir_id_front: null,
               bir_id_back: null,

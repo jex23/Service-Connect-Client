@@ -1,12 +1,18 @@
 .header {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: linear-gradient(135deg, #ff1493 0%, #ff69b4 50%, #ffb6c1 100%) !important;
+  background-attachment: fixed;
   border-bottom: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
   position: sticky;
   top: 0;
   z-index: 1000;
+}
+
+/* White background for provider users */
+.header.header-provider {
+  background: #ffffff !important;
+  background-attachment: scroll;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .header-container {

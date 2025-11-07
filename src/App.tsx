@@ -1,8 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState, Suspense } from 'react'
 import Header from './components/Header'
+import ProviderHeader from './components/ProviderHeader'
 import Home from './pages/Home'
 import Login from './pages/Login'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import AdminLogin from './pages/AdminLogin'
 import AdminHome from './pages/AdminHome'
 import AdminUsers from './pages/AdminUsers'
@@ -113,12 +116,15 @@ function AppContent() {
 
   return (
     <div className="App">
+      {isProviderRoute && <ProviderHeader />}
       {!isProviderRoute && !isAdminRoute && <Header />}
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin-home" element={<AdminHome />} />
           <Route path="/admin-users" element={<AdminUsers />} />

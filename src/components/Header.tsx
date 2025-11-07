@@ -90,7 +90,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-    <header className="header">
+    <header className={`header ${userType === 'provider' ? 'header-provider' : ''}`}>
       <div className="header-container">
         <Link to="/" className="header-logo">
           Service Connect

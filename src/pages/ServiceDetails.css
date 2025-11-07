@@ -3,8 +3,7 @@
   min-height: 100vh;
   width: 100%;
   max-width: 100vw;
-  background: linear-gradient(180deg, #ff69d4 0%, #ffb3e6 30%, #ffd9f0 60%, #ffffff 100%);
-  background-attachment: fixed;
+  background: #ffffff;
   color: #1a1a1a;
   display: flex;
   flex-direction: column;

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ProviderSidebar from '../components/ProviderSidebar';
-import ProviderHeader from '../components/ProviderHeader';
 import { chatService } from '../service/chatService';
 import { authService } from '../service/authService';
 import type { ChatConversation, ChatMessage } from '../types/chat';
@@ -153,7 +152,6 @@ const ProviderChat: React.FC = () => {
       <div className="provider-layout">
         <ProviderSidebar />
         <div className="main-content">
-          <ProviderHeader />
           <div className="provider-chat-content">
             <div className="loading">Loading conversations...</div>
           </div>
@@ -166,7 +164,6 @@ const ProviderChat: React.FC = () => {
     <div className="provider-layout">
       <ProviderSidebar />
       <div className="main-content">
-        <ProviderHeader />
         <div className="provider-chat-content">
           <div className="chat-container">
             <div className="chat-sidebar">

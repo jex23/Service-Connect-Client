@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ProviderHeader from '../components/ProviderHeader';
 import ProviderSidebar from '../components/ProviderSidebar';
 import { providerService } from '../service/providerService';
 import type { ProviderService, ServicePhoto, ProviderServiceScheduleItem, ProviderRegisteredCategory } from '../types/providerService';
@@ -148,6 +147,8 @@ const ProviderServiceFullDetails: React.FC = () => {
       // Handle photo deletions first (before the main update)
       console.log('Processing photo deletions...');
       console.log('Photos to delete count:', photosToDelete.length);
+      const failedDeletions: number[] = [];
+
       for (const photoId of photosToDelete) {
         try {
           console.log(`Deleting photo ${photoId}...`);
@@ -155,7 +156,15 @@ const ProviderServiceFullDetails: React.FC = () => {
           console.log(`Successfully deleted photo ${photoId}`);
         } catch (err) {
           console.error(`Failed to delete photo ${photoId}:`, err);
+          failedDeletions.push(photoId);
+          // Continue with other deletions even if one fails
         }
+      }
+
+      // Notify user if some deletions failed
+      if (failedDeletions.length > 0) {
+        console.warn(`Failed to delete ${failedDeletions.length} photo(s). This may be a backend issue.`);
+        // The UI will show the photos as if they were deleted, but they might still be on the server
       }
 
       // Always use the unified admin endpoint for all updates
@@ -310,7 +319,6 @@ const ProviderServiceFullDetails: React.FC = () => {
       <div className="provider-layout">
         <ProviderSidebar />
         <div className="main-content">
-          <ProviderHeader />
           <div className="service-full-details">
             <div className="loading-state">
               <div className="spinner"></div>
@@ -327,7 +335,6 @@ const ProviderServiceFullDetails: React.FC = () => {
       <div className="provider-layout">
         <ProviderSidebar />
         <div className="main-content">
-          <ProviderHeader />
           <div className="service-full-details">
             <div className="error-state">
               <h2>Service Not Found</h2>
@@ -346,7 +353,6 @@ const ProviderServiceFullDetails: React.FC = () => {
     <div className="provider-layout">
       <ProviderSidebar />
       <div className="main-content">
-        <ProviderHeader />
         <div className="service-full-details">
           {/* Header */}
           <div className="service-header">

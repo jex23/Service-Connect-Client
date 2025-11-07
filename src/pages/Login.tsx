@@ -109,6 +109,13 @@ const Login: React.FC = () => {
               placeholder="Enter your password"
             />
           </div>
+
+          <div className="forgot-password-link" style={{ textAlign: 'right', marginBottom: '15px' }}>
+            <Link to="/forgot-password" style={{ color: '#667eea', textDecoration: 'none', fontSize: '14px' }}>
+              Forgot Password?
+            </Link>
+          </div>
+
           <button type="submit" disabled={isLoading}>
             {isLoading ? 'Logging in...' : `Login as ${loginType === 'user' ? 'Customer' : 'Provider'}`}
           </button>
