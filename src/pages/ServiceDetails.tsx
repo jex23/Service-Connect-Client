@@ -348,6 +348,27 @@ const ServiceDetails: React.FC = () => {
     setShowBookingModal(true);
   };
 
+  // Check if provider is already booked at the selected date and time (across all services)
+  const isProviderAlreadyBooked = (date: string, time: string): boolean => {
+    if (!calendarData || calendarData.length === 0) {
+      return false;
+    }
+
+    // Find the calendar day for the selected date
+    const calendarDay = calendarData.find(day => day.date === date);
+    if (!calendarDay || calendarDay.bookings.length === 0) {
+      return false;
+    }
+
+    // Check if any booking exists at the selected time (regardless of status except Cancelled)
+    const existingBooking = calendarDay.bookings.find(booking =>
+      booking.booking_time === time &&
+      booking.status !== 'Cancelled'
+    );
+
+    return !!existingBooking;
+  };
+
   const handleBookingSubmit = async () => {
     // Prevent duplicate submissions
     if (bookingLoading) {
@@ -359,6 +380,12 @@ const ServiceDetails: React.FC = () => {
       setBookingResultType('error');
       setBookingResultMessage('Please select a date, day and time');
       setShowBookingResultModal(true);
+      return;
+    }
+
+    // Check if provider is already booked at this time with any service
+    if (isProviderAlreadyBooked(selectedDate, selectedTime)) {
+      alert('This time slot is not available. The provider is already booked with another service at this time. Please select a different time.');
       return;
     }
 
@@ -866,10 +893,28 @@ const ServiceDetails: React.FC = () => {
                                       timeString = String(timeSlot);
                                     }
 
-                                    // A slot is booked ONLY if it exists in existing_bookings
-                                    const isBooked = scheduleData.existing_bookings.some(
+                                    // Check if this specific service has a booking at this time
+                                    const isBookedForThisService = scheduleData.existing_bookings.some(
                                       booking => booking.booking_time === timeString
                                     );
+
+                                    // Check if provider is booked with ANY service at this time
+                                    const isProviderBusy = selectedCalendarDate && isProviderAlreadyBooked(selectedCalendarDate, timeString);
+
+                                    // Determine the booking status
+                                    const isBooked = isBookedForThisService || isProviderBusy;
+
+                                    // Get the service name if booked with another service
+                                    let bookedServiceName = '';
+                                    if (isProviderBusy && !isBookedForThisService && selectedCalendarDate) {
+                                      const calendarDay = calendarData.find(day => day.date === selectedCalendarDate);
+                                      const existingBooking = calendarDay?.bookings.find(
+                                        booking => booking.booking_time === timeString && booking.status !== 'Cancelled'
+                                      );
+                                      if (existingBooking?.service) {
+                                        bookedServiceName = existingBooking.service.service_title;
+                                      }
+                                    }
 
                                     const isSelected = selectedTime === timeString && selectedDate === selectedCalendarDate;
 
@@ -886,12 +931,14 @@ const ServiceDetails: React.FC = () => {
                                             const date = new Date(year, month - 1, day);
                                             const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
                                             setSelectedDay(dayName);
+                                          } else if (bookedServiceName) {
+                                            alert(`This time slot is already booked with "${bookedServiceName}". Please select another time.`);
                                           }
                                         }}
                                       >
                                         <span className="time-text">{timeString}</span>
                                         <span className={`status-text ${isBooked ? 'booked' : isSelected ? 'selected' : 'available'}`}>
-                                          {isBooked ? 'Booked' : isSelected ? 'Selected' : 'Available'}
+                                          {isBooked ? (bookedServiceName ? `Booked (${bookedServiceName})` : 'Booked') : isSelected ? 'Selected' : 'Available'}
                                         </span>
                                       </div>
                                     );
