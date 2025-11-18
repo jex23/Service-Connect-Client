@@ -17,6 +17,8 @@ export const API_CONFIG = {
     BOOKING_CALENDAR: '/api/users/booking-calendar',
     BOOKING_SCHEDULE_CHECK: '/api/users/booking-schedule-check',
     FORGOT_PASSWORD: '/api/auth/forgot-password',
-    RESET_PASSWORD: '/api/auth/reset-password'
+    RESET_PASSWORD: '/api/auth/reset-password',
+    USER_FEEDBACK: '/api/users/feedback',
+    PROVIDER_FEEDBACK: '/api/providers'
   }
 } as const;

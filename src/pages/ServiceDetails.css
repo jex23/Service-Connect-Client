@@ -1857,3 +1857,65 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Feedback Button */
+.feedback-btn-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  background: #d1fae5;
+  color: #065f46;
+  border: 2px solid #10b981;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.feedback-btn-success:hover {
+  background: #a7f3d0;
+  border-color: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.feedback-btn-success svg {
+  flex-shrink: 0;
+}
+
+/* Feedback Section */
+.feedback-section {
+  margin-top: 3rem;
+  padding: 2rem 0;
+  border-top: 2px solid #e5e7eb;
+}
+
+/* Feedback Modal */
+.feedback-modal {
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.feedback-modal .modal-body {
+  padding: 0;
+}
+
+/* Responsive adjustments for action buttons */
+@media (max-width: 768px) {
+  .feedback-btn-success,
+  .report-btn-warning {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+  }
+
+  .feedback-section {
+    margin-top: 2rem;
+    padding: 1.5rem 0;
+  }
+}

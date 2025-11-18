@@ -4,6 +4,8 @@ import { publicServicesService } from '../service/publicServicesService';
 import { bookingService } from '../service/bookingService';
 import { authService } from '../service/authService';
 import { userReportService } from '../service/userReportService';
+import FeedbackForm from '../components/FeedbackForm';
+import FeedbackList from '../components/FeedbackList';
 import type { ServiceDetailResponse, ServicePhoto, ServiceSchedule, ServiceCategory } from '../types/publicServices';
 import type { ServiceBookingRequest, BookingCalendarResponse, BookingScheduleCheckResponse } from '../types/booking';
 
@@ -83,6 +85,10 @@ const ServiceDetails: React.FC = () => {
     subject: '',
     description: ''
   });
+
+  // Feedback state
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackRefreshTrigger, setFeedbackRefreshTrigger] = useState(0);
 
   useEffect(() => {
     if (serviceId) {
@@ -500,6 +506,32 @@ const ServiceDetails: React.FC = () => {
     }
   };
 
+  const handleFeedbackClick = () => {
+    if (!isAuthenticated) {
+      alert('Please log in to leave feedback');
+      navigate('/login');
+      return;
+    }
+
+    const userType = authService.getStoredUserType();
+    if (userType !== 'user') {
+      alert('Only users can leave feedback. Please log in with a user account.');
+      return;
+    }
+
+    setShowFeedbackModal(true);
+  };
+
+  const handleFeedbackSuccess = () => {
+    setShowFeedbackModal(false);
+    // Trigger refresh of feedback list
+    setFeedbackRefreshTrigger(prev => prev + 1);
+  };
+
+  const handleCloseFeedbackModal = () => {
+    setShowFeedbackModal(false);
+  };
+
   if (loading) {
     return (
       <div className="service-details-container">
@@ -719,6 +751,15 @@ const ServiceDetails: React.FC = () => {
               Message Provider
             </button>
             <button
+              className="feedback-btn-success"
+              onClick={handleFeedbackClick}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+              </svg>
+              Leave Feedback
+            </button>
+            <button
               className="report-btn-warning"
               onClick={handleReportClick}
             >
@@ -731,6 +772,14 @@ const ServiceDetails: React.FC = () => {
             </button>
           </section>
         </div>
+        </div>
+
+        {/* Feedback Section */}
+        <div className="feedback-section">
+          <FeedbackList
+            serviceId={service.id}
+            refreshTrigger={feedbackRefreshTrigger}
+          />
         </div>
       </main>
 
@@ -1130,6 +1179,27 @@ const ServiceDetails: React.FC = () => {
               >
                 {bookingResultType === 'success' ? 'Done' : 'Close'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback Modal */}
+      {showFeedbackModal && service && (
+        <div className="modal-overlay" onClick={handleCloseFeedbackModal}>
+          <div className="modal-content feedback-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Leave Feedback</h3>
+              <button className="modal-close" onClick={handleCloseFeedbackModal}>×</button>
+            </div>
+
+            <div className="modal-body">
+              <FeedbackForm
+                providerId={service.provider.id}
+                providerServiceId={service.id}
+                onSuccess={handleFeedbackSuccess}
+                onCancel={handleCloseFeedbackModal}
+              />
             </div>
           </div>
         </div>
